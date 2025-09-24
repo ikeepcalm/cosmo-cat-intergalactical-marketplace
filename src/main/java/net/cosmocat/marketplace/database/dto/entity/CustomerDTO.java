@@ -1,4 +1,4 @@
-package net.cosmocat.marketplace.database.dto;
+package net.cosmocat.marketplace.database.dto.entity;
 
 import lombok.Data;
 import net.cosmocat.marketplace.database.entity.Customer;

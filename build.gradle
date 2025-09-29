@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'net.cosmocat.marketplace'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 description = 'CosmocatMarketplace'
 
 java {
@@ -19,6 +19,15 @@ repositories {
 }
 
 dependencies {
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    runtimeOnly 'com.h2database:h2'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'

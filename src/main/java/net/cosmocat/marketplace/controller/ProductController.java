@@ -14,6 +14,7 @@ import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductCreateRequest;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateRequest;
 import net.cosmocat.marketplace.database.dto.response.CosmoApiResponse;
+import net.cosmocat.marketplace.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,7 +31,6 @@ import java.util.Optional;
 @Tag(name = "Product Management", description = "APIs for managing products in the marketplace")
 public class ProductController {
 
-    // TODO: Implement ProductService, Djecka
     private final ProductService productService;
 
     @Operation(

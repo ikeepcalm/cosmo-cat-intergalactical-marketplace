@@ -19,17 +19,4 @@ public class CustomerDTO {
     private String country;
     private LocalDateTime createdAt;
 
-    public CustomerDTO(Customer customer) {
-        this.id = customer.getId();
-        this.username = customer.getUsername();
-        this.email = customer.getEmail();
-        this.firstName = customer.getFirstName();
-        this.lastName = customer.getLastName();
-        this.phone = customer.getPhone();
-        this.address = customer.getAddress();
-        this.city = customer.getCity();
-        this.postalCode = customer.getPostalCode();
-        this.country = customer.getCountry();
-        this.createdAt = customer.getCreatedAt();
-    }
 }

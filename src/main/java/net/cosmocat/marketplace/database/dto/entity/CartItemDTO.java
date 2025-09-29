@@ -9,11 +9,4 @@ public class CartItemDTO {
     private Long cartId;
     private ProductDTO product;
     private Integer quantity;
-
-    public CartItemDTO(CartItem cartItem) {
-        this.id = cartItem.getId();
-        this.cartId = cartItem.getCart() != null ? cartItem.getCart().getId() : null;
-        this.product = cartItem.getProduct() != null ? new ProductDTO(cartItem.getProduct()) : null;
-        this.quantity = cartItem.getQuantity();
-    }
 }

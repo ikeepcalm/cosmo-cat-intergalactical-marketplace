@@ -1,4 +1,4 @@
-package net.cosmocat.marketplace.service;
+package net.cosmocat.marketplace.database.dal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

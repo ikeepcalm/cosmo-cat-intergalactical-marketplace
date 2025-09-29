@@ -14,14 +14,4 @@ public class CartDTO {
     private List<CartItemDTO> cartItems;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    public CartDTO(Cart cart) {
-        this.id = cart.getId();
-        this.customerId = cart.getCustomer() != null ? cart.getCustomer().getId() : null;
-        this.cartItems = cart.getCartItems() != null
-            ? cart.getCartItems().stream().map(CartItemDTO::new).collect(Collectors.toList())
-            : null;
-        this.createdAt = cart.getCreatedAt();
-        this.updatedAt = cart.getUpdatedAt();
-    }
 }

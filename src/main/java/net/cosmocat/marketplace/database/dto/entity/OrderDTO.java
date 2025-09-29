@@ -19,18 +19,4 @@ public class OrderDTO {
     private LocalDateTime orderDate;
     private String shippingAddress;
     private String billingAddress;
-
-    public OrderDTO(Order order) {
-        this.id = order.getId();
-        this.status = order.getStatus();
-        this.customerId = order.getCustomer() != null ? order.getCustomer().getId() : null;
-        this.orderItems = order.getOrderItems() != null
-            ? order.getOrderItems().stream().map(OrderItemDTO::new).collect(Collectors.toList())
-            : null;
-        this.totalAmount = order.getTotalAmount();
-        this.currency = order.getCurrency();
-        this.orderDate = order.getOrderDate();
-        this.shippingAddress = order.getShippingAddress();
-        this.billingAddress = order.getBillingAddress();
-    }
 }

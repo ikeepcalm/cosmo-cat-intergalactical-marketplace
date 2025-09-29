@@ -13,6 +13,9 @@ public class CategoryDTO {
     private List<String> tags;
     private Integer productCount;
 
+    public CategoryDTO() {
+    }
+
     public CategoryDTO(Category category) {
         this.id = category.getId();
         this.name = category.getName();

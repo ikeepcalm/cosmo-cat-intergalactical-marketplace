@@ -99,15 +99,9 @@ public class ProductController {
     public ResponseEntity<CosmoApiResponse<ProductDTO>> createProduct(
             @Valid @RequestBody ProductCreateRequest request) {
         log.info("Creating new product: {}", request.getName());
-        try {
-            ProductDTO createdProduct = productService.createProduct(request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(CosmoApiResponse.success("Product created successfully", createdProduct));
-        } catch (Exception e) {
-            log.error("Error creating product: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(CosmoApiResponse.error("Failed to create product: " + e.getMessage()));
-        }
+        ProductDTO createdProduct = productService.createProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CosmoApiResponse.success("Product created successfully", createdProduct));
     }
 
     @Operation(
@@ -137,16 +131,10 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateRequest request) {
         log.info("Updating product with ID: {}", id);
-        try {
-            Optional<ProductDTO> updatedProduct = productService.updateProduct(id, request);
-            return updatedProduct.map(p -> ResponseEntity.ok(CosmoApiResponse.success("Product updated successfully", p)))
-                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body(CosmoApiResponse.error("Product not found with ID: " + id)));
-        } catch (Exception e) {
-            log.error("Error updating product {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(CosmoApiResponse.error("Failed to update product: " + e.getMessage()));
-        }
+        Optional<ProductDTO> updatedProduct = productService.updateProduct(id, request);
+        return updatedProduct.map(p -> ResponseEntity.ok(CosmoApiResponse.success("Product updated successfully", p)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(CosmoApiResponse.error("Product not found with ID: " + id)));
     }
 
     @Operation(

@@ -9,6 +9,7 @@ import net.cosmocat.marketplace.database.dto.request.ProductCreateRequest;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateRequest;
 import net.cosmocat.marketplace.database.entity.Category;
 import net.cosmocat.marketplace.database.entity.Product;
+import net.cosmocat.marketplace.exception.ResourceNotFoundException;
 import net.cosmocat.marketplace.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,7 @@ public class ProductService {
             if (category.isPresent()) {
                 product.setCategory(category.get());
             } else {
-                throw new IllegalArgumentException("Category not found with ID: " + request.getCategoryId());
+                throw ResourceNotFoundException.forId("Category", request.getCategoryId());
             }
         }
 
@@ -73,7 +74,7 @@ public class ProductService {
             if (category.isPresent()) {
                 existingProduct.setCategory(category.get());
             } else {
-                throw new IllegalArgumentException("Category not found with ID: " + request.getCategoryId());
+                throw ResourceNotFoundException.forId("Category", request.getCategoryId());
             }
         }
 

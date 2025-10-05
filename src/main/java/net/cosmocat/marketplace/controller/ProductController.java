@@ -11,8 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
-import net.cosmocat.marketplace.database.dto.request.ProductCreateRequest;
-import net.cosmocat.marketplace.database.dto.request.ProductUpdateRequest;
+import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
+import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
 import net.cosmocat.marketplace.database.dto.response.CosmoApiResponse;
 import net.cosmocat.marketplace.database.dal.service.ProductService;
 import org.springframework.http.HttpStatus;
@@ -97,7 +97,7 @@ public class ProductController {
     })
     @PostMapping
     public ResponseEntity<CosmoApiResponse<ProductDTO>> createProduct(
-            @Valid @RequestBody ProductCreateRequest request) {
+            @Valid @RequestBody ProductCreateDTO request) {
         log.info("Creating new product: {}", request.getName());
         ProductDTO createdProduct = productService.createProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -129,7 +129,7 @@ public class ProductController {
     public ResponseEntity<CosmoApiResponse<ProductDTO>> updateProduct(
             @Parameter(description = "Product ID", example = "1")
             @PathVariable Long id,
-            @Valid @RequestBody ProductUpdateRequest request) {
+            @Valid @RequestBody ProductUpdateDTO request) {
         log.info("Updating product with ID: {}", id);
         Optional<ProductDTO> updatedProduct = productService.updateProduct(id, request);
         return updatedProduct.map(p -> ResponseEntity.ok(CosmoApiResponse.success("Product updated successfully", p)))

@@ -1,18 +1,14 @@
 package net.cosmocat.marketplace.database.dto.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Value;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Value
 public class CategoryDTO {
-    private Long id;
-    private String name;
-    private String description;
-    private List<String> tags;
-    private Integer productCount;
+    Long id;
+    String name;
+    String description;
+    List<String> tags;
+    Integer productCount;
 }

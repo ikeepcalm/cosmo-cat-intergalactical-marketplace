@@ -1,28 +1,24 @@
 package net.cosmocat.marketplace.database.dto.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Value;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
 
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Value
 public class ProductDTO {
-    private Long id;
-    private String name;
-    private String description;
-    private String image;
-    private Double price;
-    private String currency;
-    private Integer stockQuantity;
-    private String sku;
-    private AvailabilityStatus availabilityStatus;
-    private Double weight;
-    private String dimensions;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private CategoryDTO category;
+    Long id;
+    String name;
+    String description;
+    String image;
+    Double price;
+    String currency;
+    Integer stockQuantity;
+    String sku;
+    AvailabilityStatus availabilityStatus;
+    Double weight;
+    String dimensions;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    CategoryDTO category;
 }

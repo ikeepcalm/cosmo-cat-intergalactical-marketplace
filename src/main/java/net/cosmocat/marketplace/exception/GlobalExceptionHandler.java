@@ -1,12 +1,11 @@
 package net.cosmocat.marketplace.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import net.cosmocat.marketplace.database.dto.response.ErrorResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,8 +13,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.time.LocalDateTime;
+import java.net.URI;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,106 +26,99 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    public ResponseEntity<ProblemDetail> handleValidationException(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
         log.warn("Validation error [{}]: {}", traceId, ex.getMessage());
 
-        List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult()
+        List<Map<String, Object>> fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(fieldError -> ErrorResponse.FieldError.builder()
-                        .field(fieldError.getField())
-                        .rejectedValue(fieldError.getRejectedValue())
-                        .message(fieldError.getDefaultMessage())
-                        .code(fieldError.getCode())
-                        .build())
+                .map(fieldError -> {
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("field", fieldError.getField());
+                    error.put("rejectedValue", fieldError.getRejectedValue());
+                    error.put("message", fieldError.getDefaultMessage());
+                    error.put("code", fieldError.getCode());
+                    return error;
+                })
                 .collect(Collectors.toList());
 
         String objectName = ex.getBindingResult().getObjectName();
         String mainMessage = String.format("Validation failed for object '%s'", objectName);
 
         if (!fieldErrors.isEmpty()) {
-            ErrorResponse.FieldError firstError = fieldErrors.get(0);
+            Map<String, Object> firstError = fieldErrors.get(0);
             mainMessage = String.format("Validation failed for object '%s': Field '%s' %s",
-                    objectName, firstError.getField(), firstError.getMessage());
+                    objectName, firstError.get("field"), firstError.get("message"));
         }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message(mainMessage)
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .fieldErrors(fieldErrors)
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, mainMessage);
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("fieldErrors", fieldErrors);
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+    public ResponseEntity<ProblemDetail> handleConstraintViolationException(
             ConstraintViolationException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
         log.warn("Constraint violation [{}]: {}", traceId, ex.getMessage());
 
-        List<ErrorResponse.FieldError> fieldErrors = ex.getConstraintViolations()
+        List<Map<String, Object>> fieldErrors = ex.getConstraintViolations()
                 .stream()
                 .map(violation -> {
                     String fieldName = getFieldNameFromPropertyPath(violation.getPropertyPath().toString());
-                    return ErrorResponse.FieldError.builder()
-                            .field(fieldName)
-                            .rejectedValue(violation.getInvalidValue())
-                            .message(violation.getMessage())
-                            .code(violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName())
-                            .build();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("field", fieldName);
+                    error.put("rejectedValue", violation.getInvalidValue());
+                    error.put("message", violation.getMessage());
+                    error.put("code", violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
+                    return error;
                 })
                 .collect(Collectors.toList());
 
         String mainMessage = "Validation failed";
         if (!fieldErrors.isEmpty()) {
-            ErrorResponse.FieldError firstError = fieldErrors.get(0);
+            Map<String, Object> firstError = fieldErrors.get(0);
             mainMessage = String.format("Validation failed: Field '%s' %s",
-                    firstError.getField(), firstError.getMessage());
+                    firstError.get("field"), firstError.get("message"));
         }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message(mainMessage)
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .fieldErrors(fieldErrors)
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, mainMessage);
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("fieldErrors", fieldErrors);
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+    public ResponseEntity<ProblemDetail> handleIllegalArgumentException(
             IllegalArgumentException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
         log.warn("Illegal argument [{}]: {}", traceId, ex.getMessage());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatchException(
+    public ResponseEntity<ProblemDetail> handleTypeMismatchException(
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
@@ -132,39 +127,34 @@ public class GlobalExceptionHandler {
         String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
                 ex.getValue(), ex.getName(), ex.getRequiredType().getSimpleName());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message(message)
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
         log.warn("Message not readable [{}]: {}", traceId, ex.getMessage());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message("Invalid JSON format or malformed request body")
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, "Invalid JSON format or malformed request body");
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+    public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
             DataIntegrityViolationException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
@@ -177,54 +167,47 @@ public class GlobalExceptionHandler {
             message = "Referenced resource does not exist";
         }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.CONFLICT.value())
-                .error("Conflict")
-                .message(message)
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, message);
+        problemDetail.setTitle("Conflict");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+    public ResponseEntity<ProblemDetail> handleResourceNotFoundException(
             ResourceNotFoundException ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
         log.warn("Resource not found [{}]: {}", traceId, ex.getMessage());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Not Found")
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Not Found");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(
+    public ResponseEntity<ProblemDetail> handleGenericException(
             Exception ex, HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
         log.error("Unexpected error [{}]: {}", traceId, ex.getMessage(), ex);
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error("Internal Server Error")
-                .message("An unexpected error occurred. Please contact support with trace ID: " + traceId)
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .traceId(traceId)
-                .build();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred. Please contact support with trace ID: " + traceId);
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("traceId", traceId);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
     }
 
     private String getFieldNameFromPropertyPath(String propertyPath) {

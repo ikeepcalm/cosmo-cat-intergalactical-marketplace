@@ -19,8 +19,6 @@ repositories {
 }
 
 dependencies {
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    runtimeOnly 'com.h2database:h2'
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'

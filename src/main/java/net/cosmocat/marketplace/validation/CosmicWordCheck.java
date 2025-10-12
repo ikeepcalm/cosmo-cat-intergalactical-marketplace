@@ -2,7 +2,6 @@ package net.cosmocat.marketplace.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
 import java.lang.annotation.*;
 
 @Documented
@@ -11,13 +10,14 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CosmicWordCheck {
 
-    String message() default "Name must contain at least one cosmic term (star, galaxy, comet, nebula, planet, moon, asteroid, meteor, cosmic, space, orbit, solar, stellar, celestial, universe, supernova, black hole, pulsar, quasar)";
+  String message() default
+      "Name must contain at least one cosmic term (star, galaxy, comet, nebula, planet, moon, asteroid, meteor, cosmic, space, orbit, solar, stellar, celestial, universe, supernova, black hole, pulsar, quasar)";
 
-    Class<?>[] groups() default {};
+  Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+  Class<? extends Payload>[] payload() default {};
 
-    boolean required() default true;
+  boolean required() default true;
 
-    int minCosmicWords() default 1;
+  int minCosmicWords() default 1;
 }

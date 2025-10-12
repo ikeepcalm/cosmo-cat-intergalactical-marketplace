@@ -8,20 +8,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.cosmocat.marketplace.database.dal.service.ProductService;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
 import net.cosmocat.marketplace.database.dto.response.CosmoApiResponse;
-import net.cosmocat.marketplace.database.dal.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController

@@ -41,6 +41,17 @@ public class CosmicWordCheckValidator implements ConstraintValidator<CosmicWordC
           "starlight",
           "moonlight");
 
+  private static final Pattern COSMIC_PATTERN;
+
+  static {
+    String regex =
+        "\\b("
+            + String.join(
+                "|", COSMIC_TERMS.stream().map(Pattern::quote).toArray(String[]::new))
+            + ")\\b";
+    COSMIC_PATTERN = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+  }
+
   private boolean required;
   private int minCosmicWords;
 
@@ -58,17 +69,15 @@ public class CosmicWordCheckValidator implements ConstraintValidator<CosmicWordC
 
     log.debug("Validating cosmic words in: '{}'", value);
 
-    String lowerCaseValue = value.toLowerCase();
+    var matcher = COSMIC_PATTERN.matcher(value);
     int cosmicWordCount = 0;
 
-    for (String cosmicTerm : COSMIC_TERMS) {
-      if (containsWholeWord(lowerCaseValue, cosmicTerm)) {
-        cosmicWordCount++;
-        log.debug("Found cosmic term: '{}' in '{}'", cosmicTerm, value);
+    while (matcher.find()) {
+      cosmicWordCount++;
+      log.debug("Found cosmic term: '{}' in '{}'", matcher.group(), value);
 
-        if (cosmicWordCount >= minCosmicWords) {
-          return true;
-        }
+      if (cosmicWordCount >= minCosmicWords) {
+        return true;
       }
     }
 
@@ -90,10 +99,5 @@ public class CosmicWordCheckValidator implements ConstraintValidator<CosmicWordC
     }
 
     return true;
-  }
-
-  private boolean containsWholeWord(String text, String word) {
-    String pattern = "\\b" + Pattern.quote(word) + "\\b";
-    return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(text).find();
   }
 }

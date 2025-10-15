@@ -10,6 +10,7 @@ import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
 import net.cosmocat.marketplace.database.entity.Category;
 import net.cosmocat.marketplace.database.entity.Product;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
+import net.cosmocat.marketplace.exception.ResourceConflictException;
 import net.cosmocat.marketplace.exception.ResourceNotFoundException;
 import net.cosmocat.marketplace.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
@@ -120,6 +121,14 @@ public class ProductService {
 
   public ProductDTO createProduct(ProductCreateDTO request) {
     log.info("Creating new product: {}", request.getName());
+
+    if (request.getSku() != null) {
+      boolean skuExists =
+          products.values().stream().anyMatch(p -> request.getSku().equals(p.getSku()));
+      if (skuExists) {
+        throw ResourceConflictException.forDuplicateField("Product", "SKU", request.getSku());
+      }
+    }
 
     Product product = productMapper.toEntity(request);
     Long id = productIdGenerator.getAndIncrement();

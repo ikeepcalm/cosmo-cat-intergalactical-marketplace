@@ -163,16 +163,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Product not found",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
-                }
-              }
-            }
           }
         }
       }

@@ -88,6 +88,11 @@ public class ProductController {
                     responseCode = "400",
                     description = "Invalid request data",
                     content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Product with this SKU already exists",
+                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
             )
     })
     @PostMapping

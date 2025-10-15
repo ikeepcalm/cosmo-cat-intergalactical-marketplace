@@ -193,6 +193,23 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
   }
 
+  @ExceptionHandler(ResourceConflictException.class)
+  public ResponseEntity<ProblemDetail> handleResourceConflictException(
+      ResourceConflictException ex, HttpServletRequest request) {
+
+    String traceId = UUID.randomUUID().toString();
+    log.warn("Resource conflict [{}]: {}", traceId, ex.getMessage());
+
+    ProblemDetail problemDetail =
+        ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    problemDetail.setTitle("Conflict");
+    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    problemDetail.setProperty("timestamp", Instant.now());
+    problemDetail.setProperty("traceId", traceId);
+
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+  }
+
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleResourceNotFoundException(
       ResourceNotFoundException ex, HttpServletRequest request) {

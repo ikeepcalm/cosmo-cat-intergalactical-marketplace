@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Cosmocat Marketplace API",
-    "description": "This API exposes endpoints to manage products in the Cosmocat Marketplace.",
+    "descriptióon": "This API exposes endpoints to manage products in the Cosmocat Marketplace.",
     "contact": {
       "name": "Cosmocat Marketplace Team",
       "email": "cosmocat@marketplace.com"
@@ -53,7 +53,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -63,7 +63,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -94,7 +94,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProductUpdateRequest"
+                "$ref": "#/components/schemas/ProductUpdateDTO"
               }
             }
           },
@@ -106,17 +106,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request data",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -126,7 +116,17 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -138,7 +138,7 @@
           "Product Management"
         ],
         "summary": "Delete product",
-        "description": "Delete a product from the marketplace",
+        "description": "Delete a product from the marketplace.",
         "operationId": "deleteProduct",
         "parameters": [
           {
@@ -155,14 +155,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Product deleted successfully",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponseVoid"
-                }
-              }
-            }
+            "description": "Product deleted successfully"
           }
         }
       }
@@ -181,7 +174,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -199,29 +192,39 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProductCreateRequest"
+                "$ref": "#/components/schemas/ProductCreateDTO"
               }
             }
           },
           "required": true
         },
         "responses": {
-          "400": {
-            "description": "Invalid request data",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
-                }
-              }
-            }
-          },
           "201": {
             "description": "Product created successfully",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Product with this SKU already exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -255,7 +258,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CosmoApiResponse"
+                  "$ref": "#/components/schemas/ProductDTO"
                 }
               }
             }
@@ -266,7 +269,7 @@
   },
   "components": {
     "schemas": {
-      "ProductUpdateRequest": {
+      "ProductUpdateDTO": {
         "type": "object",
         "description": "Request object for updating an existing product",
         "properties": {
@@ -355,31 +358,91 @@
           }
         }
       },
-      "CosmoApiResponse": {
+      "CategoryDTO": {
         "type": "object",
-        "description": "Standard API response wrapper",
         "properties": {
-          "status": {
-            "type": "string",
-            "description": "Response status",
-            "example": "success"
+          "id": {
+            "type": "integer",
+            "format": "int64"
           },
-          "message": {
-            "type": "string",
-            "description": "Response message",
-            "example": "Operation completed successfully"
+          "name": {
+            "type": "string"
           },
-          "data": {
-            "description": "Response data"
+          "description": {
+            "type": "string"
           },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Response timestamp"
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "productCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
-      "ProductCreateRequest": {
+      "ProductDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "stockQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "availabilityStatus": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OUT_OF_STOCK",
+              "DISCONTINUED",
+              "PRE_ORDER"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "format": "double"
+          },
+          "dimensions": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CategoryDTO"
+          }
+        }
+      },
+      "ProductCreateDTO": {
         "type": "object",
         "description": "Request object for creating a new product",
         "properties": {
@@ -474,31 +537,6 @@
           "price",
           "stockQuantity"
         ]
-      },
-      "CosmoApiResponseVoid": {
-        "type": "object",
-        "description": "Standard API response wrapper",
-        "properties": {
-          "status": {
-            "type": "string",
-            "description": "Response status",
-            "example": "success"
-          },
-          "message": {
-            "type": "string",
-            "description": "Response message",
-            "example": "Operation completed successfully"
-          },
-          "data": {
-            "type": "object",
-            "description": "Response data"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Response timestamp"
-          }
-        }
       }
     }
   }

@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.database.dal.service.ProductService;
@@ -71,11 +70,8 @@ public class ProductController {
             @Parameter(description = "Product ID", example = "1")
             @PathVariable Long id) {
         log.info("Retrieving product with ID: {}", id);
-        Optional<ProductDTO> product = productService.getProductById(id);
-
-        return product.map(p -> ResponseEntity.ok(CosmoApiResponse.success("Product found", p)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(CosmoApiResponse.error("Product not found with ID: " + id)));
+        ProductDTO product = productService.getProductById(id);
+        return ResponseEntity.ok(CosmoApiResponse.success("Product found", product));
     }
 
     @Operation(
@@ -130,10 +126,8 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateDTO request) {
         log.info("Updating product with ID: {}", id);
-        Optional<ProductDTO> updatedProduct = productService.updateProduct(id, request);
-        return updatedProduct.map(p -> ResponseEntity.ok(CosmoApiResponse.success("Product updated successfully", p)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(CosmoApiResponse.error("Product not found with ID: " + id)));
+        ProductDTO updatedProduct = productService.updateProduct(id, request);
+        return ResponseEntity.ok(CosmoApiResponse.success("Product updated successfully", updatedProduct));
     }
 
     @Operation(
@@ -152,15 +146,12 @@ public class ProductController {
             )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<CosmoApiResponse<Void>> deleteProduct(
+    public ResponseEntity<Void> deleteProduct(
             @Parameter(description = "Product ID", example = "1")
             @PathVariable Long id) {
         log.info("Deleting product with ID: {}", id);
-        boolean deleted = productService.deleteProduct(id);
-
-        return deleted ? ResponseEntity.noContent().build()
-                      : ResponseEntity.status(HttpStatus.NOT_FOUND)
-                              .body(CosmoApiResponse.error("Product not found with ID: " + id));
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

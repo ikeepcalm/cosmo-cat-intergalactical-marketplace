@@ -109,9 +109,13 @@ public class ProductService {
     return productMapper.toDTOList(productList);
   }
 
-  public Optional<ProductDTO> getProductById(Long id) {
+  public ProductDTO getProductById(Long id) {
     log.debug("Retrieving product with ID: {}", id);
-    return Optional.ofNullable(products.get(id)).map(productMapper::toDTO);
+    Product product = products.get(id);
+    if (product == null) {
+      throw ResourceNotFoundException.forId("Product", id);
+    }
+    return productMapper.toDTO(product);
   }
 
   public ProductDTO createProduct(ProductCreateDTO request) {
@@ -138,13 +142,12 @@ public class ProductService {
     return productMapper.toDTO(product);
   }
 
-  public Optional<ProductDTO> updateProduct(Long id, ProductUpdateDTO request) {
+  public ProductDTO updateProduct(Long id, ProductUpdateDTO request) {
     log.debug("Updating product with ID: {}", id);
 
     Product existingProduct = products.get(id);
     if (existingProduct == null) {
-      log.warn("Product not found with ID: {}", id);
-      return Optional.empty();
+      throw ResourceNotFoundException.forId("Product", id);
     }
 
     productMapper.updateEntityFromRequest(request, existingProduct);
@@ -162,20 +165,18 @@ public class ProductService {
     products.put(id, existingProduct);
     log.info("Product updated successfully with ID: {}", id);
 
-    return Optional.of(productMapper.toDTO(existingProduct));
+    return productMapper.toDTO(existingProduct);
   }
 
-  public boolean deleteProduct(Long id) {
+  public void deleteProduct(Long id) {
     log.debug("Deleting product with ID: {}", id);
 
     if (!products.containsKey(id)) {
-      log.warn("Product not found with ID: {}", id);
-      return false;
+      throw ResourceNotFoundException.forId("Product", id);
     }
 
     products.remove(id);
     log.info("Product deleted successfully with ID: {}", id);
-    return true;
   }
 
   public List<ProductDTO> searchProductsByName(String name) {

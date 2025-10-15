@@ -10,8 +10,9 @@ import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
 import net.cosmocat.marketplace.database.entity.Category;
 import net.cosmocat.marketplace.database.entity.Product;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
-import net.cosmocat.marketplace.exception.ResourceConflictException;
-import net.cosmocat.marketplace.exception.ResourceNotFoundException;
+import net.cosmocat.marketplace.exception.CategoryNotFoundException;
+import net.cosmocat.marketplace.exception.ProductConflictException;
+import net.cosmocat.marketplace.exception.ProductNotFoundException;
 import net.cosmocat.marketplace.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 
@@ -114,7 +115,7 @@ public class ProductService {
     log.info("Retrieving product with ID: {}", id);
     Product product = products.get(id);
     if (product == null) {
-      throw ResourceNotFoundException.forId("Product", id);
+      throw ProductNotFoundException.forId(id);
     }
     return productMapper.toDTO(product);
   }
@@ -126,7 +127,7 @@ public class ProductService {
       boolean skuExists =
           products.values().stream().anyMatch(p -> request.getSku().equals(p.getSku()));
       if (skuExists) {
-        throw ResourceConflictException.forDuplicateField("Product", "SKU", request.getSku());
+        throw ProductConflictException.forDuplicateSku(request.getSku());
       }
     }
 
@@ -141,7 +142,7 @@ public class ProductService {
       if (category != null) {
         product.setCategory(category);
       } else {
-        throw ResourceNotFoundException.forId("Category", request.getCategoryId());
+        throw CategoryNotFoundException.forId(request.getCategoryId());
       }
     }
 
@@ -156,7 +157,7 @@ public class ProductService {
 
     Product existingProduct = products.get(id);
     if (existingProduct == null) {
-      throw ResourceNotFoundException.forId("Product", id);
+      throw ProductNotFoundException.forId(id);
     }
 
     productMapper.updateEntityFromRequest(request, existingProduct);
@@ -166,7 +167,7 @@ public class ProductService {
       if (category != null) {
         existingProduct.setCategory(category);
       } else {
-        throw ResourceNotFoundException.forId("Category", request.getCategoryId());
+        throw CategoryNotFoundException.forId(request.getCategoryId());
       }
     }
 

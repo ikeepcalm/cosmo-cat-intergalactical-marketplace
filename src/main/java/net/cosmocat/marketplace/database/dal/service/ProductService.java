@@ -104,13 +104,13 @@ public class ProductService {
   }
 
   public List<ProductDTO> getAllProducts() {
-    log.debug("Retrieving all products");
+    log.info("Retrieving all products");
     List<Product> productList = new ArrayList<>(products.values());
     return productMapper.toDTOList(productList);
   }
 
   public ProductDTO getProductById(Long id) {
-    log.debug("Retrieving product with ID: {}", id);
+    log.info("Retrieving product with ID: {}", id);
     Product product = products.get(id);
     if (product == null) {
       throw ResourceNotFoundException.forId("Product", id);
@@ -119,7 +119,7 @@ public class ProductService {
   }
 
   public ProductDTO createProduct(ProductCreateDTO request) {
-    log.debug("Creating new product: {}", request.getName());
+    log.info("Creating new product: {}", request.getName());
 
     Product product = productMapper.toEntity(request);
     Long id = productIdGenerator.getAndIncrement();
@@ -143,7 +143,7 @@ public class ProductService {
   }
 
   public ProductDTO updateProduct(Long id, ProductUpdateDTO request) {
-    log.debug("Updating product with ID: {}", id);
+    log.info("Updating product with ID: {}", id);
 
     Product existingProduct = products.get(id);
     if (existingProduct == null) {
@@ -169,13 +169,12 @@ public class ProductService {
   }
 
   public void deleteProduct(Long id) {
-    log.debug("Deleting product with ID: {}", id);
+    log.info("Deleting product with ID: {}", id);
     products.remove(id);
-    log.info("Product deleted successfully with ID: {}", id);
   }
 
   public List<ProductDTO> searchProductsByName(String name) {
-    log.debug("Searching products by name: {}", name);
+    log.info("Searching products by name: {}", name);
     List<Product> productList =
         products.values().stream()
             .filter(product -> product.getName().toLowerCase().contains(name.toLowerCase()))

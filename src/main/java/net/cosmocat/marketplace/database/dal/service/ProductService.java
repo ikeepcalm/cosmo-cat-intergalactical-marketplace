@@ -10,9 +10,9 @@ import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
 import net.cosmocat.marketplace.database.entity.Category;
 import net.cosmocat.marketplace.database.entity.Product;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
-import net.cosmocat.marketplace.exception.CategoryNotFoundException;
-import net.cosmocat.marketplace.exception.ProductConflictException;
-import net.cosmocat.marketplace.exception.ProductNotFoundException;
+import net.cosmocat.marketplace.exception.type.CategoryNotFoundException;
+import net.cosmocat.marketplace.exception.type.ProductConflictException;
+import net.cosmocat.marketplace.exception.type.ProductNotFoundException;
 import net.cosmocat.marketplace.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 

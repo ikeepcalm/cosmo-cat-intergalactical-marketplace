@@ -15,7 +15,6 @@ import net.cosmocat.marketplace.database.dal.service.ProductService;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
-import net.cosmocat.marketplace.database.dto.response.CosmoApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,14 +38,14 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Products retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
             )
     })
     @GetMapping
-    public ResponseEntity<CosmoApiResponse<List<ProductDTO>>> getAllProducts() {
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
         log.info("Retrieving all products");
         List<ProductDTO> products = productService.getAllProducts();
-        return ResponseEntity.ok(CosmoApiResponse.success("Products retrieved successfully", products));
+        return ResponseEntity.ok(products);
     }
 
     @Operation(
@@ -57,21 +56,20 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Product found",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    description = "Product not found"
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<CosmoApiResponse<ProductDTO>> getProductById(
+    public ResponseEntity<ProductDTO> getProductById(
             @Parameter(description = "Product ID", example = "1")
             @PathVariable Long id) {
         log.info("Retrieving product with ID: {}", id);
         ProductDTO product = productService.getProductById(id);
-        return ResponseEntity.ok(CosmoApiResponse.success("Product found", product));
+        return ResponseEntity.ok(product);
     }
 
     @Operation(
@@ -82,26 +80,24 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "201",
                     description = "Product created successfully",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid request data",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    description = "Invalid request data"
             ),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Product with this SKU already exists",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    description = "Product with this SKU already exists"
             )
     })
     @PostMapping
-    public ResponseEntity<CosmoApiResponse<ProductDTO>> createProduct(
+    public ResponseEntity<ProductDTO> createProduct(
             @Valid @RequestBody ProductCreateDTO request) {
         log.info("Creating new product: {}", request.getName());
         ProductDTO createdProduct = productService.createProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CosmoApiResponse.success("Product created successfully", createdProduct));
+                .body(createdProduct);
     }
 
     @Operation(
@@ -112,27 +108,25 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Product updated successfully",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    description = "Product not found"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid request data",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    description = "Invalid request data"
             )
     })
     @PutMapping("/{id}")
-    public ResponseEntity<CosmoApiResponse<ProductDTO>> updateProduct(
+    public ResponseEntity<ProductDTO> updateProduct(
             @Parameter(description = "Product ID", example = "1")
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateDTO request) {
         log.info("Updating product with ID: {}", id);
         ProductDTO updatedProduct = productService.updateProduct(id, request);
-        return ResponseEntity.ok(CosmoApiResponse.success("Product updated successfully", updatedProduct));
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @Operation(
@@ -162,15 +156,15 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Search completed successfully",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
             )
     })
     @GetMapping("/search")
-    public ResponseEntity<CosmoApiResponse<List<ProductDTO>>> searchProducts(
+    public ResponseEntity<List<ProductDTO>> searchProducts(
             @Parameter(description = "Product name to search for", example = "laptop")
             @RequestParam String name) {
         log.info("Searching products by name: {}", name);
         List<ProductDTO> products = productService.searchProductsByName(name);
-        return ResponseEntity.ok(CosmoApiResponse.success("Search completed", products));
+        return ResponseEntity.ok(products);
     }
 }

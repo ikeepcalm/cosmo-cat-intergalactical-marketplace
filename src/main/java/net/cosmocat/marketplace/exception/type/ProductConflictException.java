@@ -1,4 +1,4 @@
-package net.cosmocat.marketplace.exception;
+package net.cosmocat.marketplace.exception.type;
 
 public class ProductConflictException extends ResourceConflictException {
 

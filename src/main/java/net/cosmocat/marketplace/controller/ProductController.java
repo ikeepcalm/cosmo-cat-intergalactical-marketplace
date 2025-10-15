@@ -132,17 +132,12 @@ public class ProductController {
 
     @Operation(
             summary = "Delete product",
-            description = "Delete a product from the marketplace"
+            description = "Delete a product from the marketplace."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
                     description = "Product deleted successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = CosmoApiResponse.class))
             )
     })
     @DeleteMapping("/{id}")

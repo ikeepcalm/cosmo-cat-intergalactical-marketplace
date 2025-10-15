@@ -170,11 +170,6 @@ public class ProductService {
 
   public void deleteProduct(Long id) {
     log.debug("Deleting product with ID: {}", id);
-
-    if (!products.containsKey(id)) {
-      throw ResourceNotFoundException.forId("Product", id);
-    }
-
     products.remove(id);
     log.info("Product deleted successfully with ID: {}", id);
   }

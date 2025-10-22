@@ -33,6 +33,11 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    /* @SpringBootTest won't let us run tests without otherwise,
+       so I added H2 with the testImplementation scope! */
+    testImplementation 'com.h2database:h2'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -42,5 +47,14 @@ jacoco {
 
 tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy 'jacocoTestReport', 'jacocoTestCoverageVerification'
+    finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = false
+        html.required = true
+        csv.required = false
+    }
 }

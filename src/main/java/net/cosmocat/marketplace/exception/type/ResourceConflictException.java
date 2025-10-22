@@ -1,0 +1,12 @@
+package net.cosmocat.marketplace.exception.type;
+
+public abstract class ResourceConflictException extends RuntimeException {
+
+  public ResourceConflictException(String message) {
+    super(message);
+  }
+
+  public ResourceConflictException(String message, Throwable cause) {
+    super(message, cause);
+  }
+}

@@ -191,7 +191,10 @@ class GalacticPriceServiceTest extends WireMockTestBase {
         void shouldThrowExceptionOnMalformedResponse() {
             // Given - Stub with invalid JSON
             wireMockServer.stubFor(get(urlPathMatching("/api/v1/currency/convert.*"))
-                .willReturn(okJson("{ invalid json")));
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{ invalid json")));
 
             // When & Then
             assertThatThrownBy(() ->

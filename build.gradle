@@ -34,9 +34,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    /* @SpringBootTest won't let us run tests without otherwise,
-       so I added H2 with the testImplementation scope! */
     testImplementation 'com.h2database:h2'
+
+    testImplementation 'org.wiremock:wiremock-standalone:3.3.1'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

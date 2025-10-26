@@ -131,7 +131,7 @@ class ProductUpdateDTOValidationTest {
             // Then - May have size violations but not below min
             assertThat(violations).allMatch(v ->
                     !v.getMessage().contains("at least") &&
-                            !v.getMessage().contains("DecimalMin")
+                    !v.getMessage().contains("DecimalMin")
             );
         }
     }
@@ -454,8 +454,8 @@ class ProductUpdateDTOValidationTest {
             // Then - Should have no size-related violations
             assertThat(violations)
                     .filteredOn(v -> v.getMessage().contains("exceed") ||
-                            v.getMessage().contains("DecimalMax") ||
-                            v.getMessage().contains("Max"))
+                                     v.getMessage().contains("DecimalMax") ||
+                                     v.getMessage().contains("Max"))
                     .isEmpty();
         }
     }

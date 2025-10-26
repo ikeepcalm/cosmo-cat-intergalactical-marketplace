@@ -34,8 +34,8 @@ class ProductServiceTest {
         assertThat(products).isNotEmpty();
         assertThat(products).hasSizeGreaterThanOrEqualTo(5);
         assertThat(products)
-            .extracting(ProductDTO::getName)
-            .contains("Laptop HP Pro", "Smartphone Samsung");
+                .extracting(ProductDTO::getName)
+                .contains("Laptop HP Pro", "Smartphone Samsung");
     }
 
     @Test
@@ -61,27 +61,27 @@ class ProductServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> productService.getProductById(nonExistentId))
-            .isInstanceOf(ProductNotFoundException.class)
-            .hasMessageContaining("999");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessageContaining("999");
     }
 
     @Test
     @DisplayName("Should create new product successfully")
     void createProductWithValidDataShouldCreateProduct() {
         // Given
-        ProductCreateDTO createRequest = new ProductCreateDTO(
-            "Stellar Mouse",
-            "A cosmic gaming mouse",
-            29.99,
-            "USD",
-            50,
-            "MOUSE001",
-            "https://example.com/mouse.jpg",
-            0.1,
-            "10x5x3 cm",
-            AvailabilityStatus.AVAILABLE,
-            1L
-        );
+        ProductCreateDTO createRequest =
+                new ProductCreateDTO(
+                        "Stellar Mouse",
+                        "A cosmic gaming mouse",
+                        29.99,
+                        "USD",
+                        50,
+                        "MOUSE001",
+                        "https://example.com/mouse.jpg",
+                        0.1,
+                        "10x5x3 cm",
+                        AvailabilityStatus.AVAILABLE,
+                        1L);
 
         // When
         ProductDTO createdProduct = productService.createProduct(createRequest);
@@ -98,48 +98,48 @@ class ProductServiceTest {
     @DisplayName("Should throw ProductConflictException when SKU already exists")
     void createProductWithDuplicateSkuShouldThrowException() {
         // Given
-        ProductCreateDTO createRequest = new ProductCreateDTO(
-            "Cosmic Laptop",
-            "Another laptop",
-            1299.99,
-            "USD",
-            5,
-            "LAPTOP001",
-            "https://example.com/laptop.jpg",
-            2.5,
-            "30x20x2 cm",
-            AvailabilityStatus.AVAILABLE,
-            1L
-        );
+        ProductCreateDTO createRequest =
+                new ProductCreateDTO(
+                        "Cosmic Laptop",
+                        "Another laptop",
+                        1299.99,
+                        "USD",
+                        5,
+                        "LAPTOP001",
+                        "https://example.com/laptop.jpg",
+                        2.5,
+                        "30x20x2 cm",
+                        AvailabilityStatus.AVAILABLE,
+                        1L);
 
         // When & Then
         assertThatThrownBy(() -> productService.createProduct(createRequest))
-            .isInstanceOf(ProductConflictException.class)
-            .hasMessageContaining("LAPTOP001");
+                .isInstanceOf(ProductConflictException.class)
+                .hasMessageContaining("LAPTOP001");
     }
 
     @Test
     @DisplayName("Should throw CategoryNotFoundException when category doesn't exist")
     void createProductWithInvalidCategoryIdShouldThrowException() {
         // Given
-        ProductCreateDTO createRequest = new ProductCreateDTO(
-            "Galaxy Keyboard",
-            "Mechanical keyboard",
-            79.99,
-            "USD",
-            30,
-            "KEYB001",
-            "https://example.com/keyboard.jpg",
-            0.8,
-            "45x15x3 cm",
-            AvailabilityStatus.AVAILABLE,
-            999L
-        );
+        ProductCreateDTO createRequest =
+                new ProductCreateDTO(
+                        "Galaxy Keyboard",
+                        "Mechanical keyboard",
+                        79.99,
+                        "USD",
+                        30,
+                        "KEYB001",
+                        "https://example.com/keyboard.jpg",
+                        0.8,
+                        "45x15x3 cm",
+                        AvailabilityStatus.AVAILABLE,
+                        999L);
 
         // When & Then
         assertThatThrownBy(() -> productService.createProduct(createRequest))
-            .isInstanceOf(CategoryNotFoundException.class)
-            .hasMessageContaining("999");
+                .isInstanceOf(CategoryNotFoundException.class)
+                .hasMessageContaining("999");
     }
 
     @Test
@@ -147,19 +147,19 @@ class ProductServiceTest {
     void updateProductWithValidDataShouldUpdateProduct() {
         // Given
         Long productId = 1L;
-        ProductUpdateDTO updateRequest = new ProductUpdateDTO(
-            "Laptop HP Pro",
-            "High performance laptop - updated",
-            1099.99,
-            "USD",
-            8,
-            "LAPTOP001",
-            "https://example.com/laptop-updated.jpg",
-            2.0,
-            "35x25x2 cm",
-            AvailabilityStatus.AVAILABLE,
-            1L
-        );
+        ProductUpdateDTO updateRequest =
+                new ProductUpdateDTO(
+                        "Laptop HP Pro",
+                        "High performance laptop - updated",
+                        1099.99,
+                        "USD",
+                        8,
+                        "LAPTOP001",
+                        "https://example.com/laptop-updated.jpg",
+                        2.0,
+                        "35x25x2 cm",
+                        AvailabilityStatus.AVAILABLE,
+                        1L);
 
         // When
         ProductDTO updatedProduct = productService.updateProduct(productId, updateRequest);
@@ -177,24 +177,24 @@ class ProductServiceTest {
     void updateProductWithInvalidIdShouldThrowException() {
         // Given
         Long nonExistentId = 999L;
-        ProductUpdateDTO updateRequest = new ProductUpdateDTO(
-            "Updated Name",
-            "Updated Description",
-            99.99,
-            "USD",
-            10,
-            "SKU999",
-            "https://example.com/updated.jpg",
-            1.0,
-            "10x10x10 cm",
-            AvailabilityStatus.AVAILABLE,
-            1L
-        );
+        ProductUpdateDTO updateRequest =
+                new ProductUpdateDTO(
+                        "Updated Name",
+                        "Updated Description",
+                        99.99,
+                        "USD",
+                        10,
+                        "SKU999",
+                        "https://example.com/updated.jpg",
+                        1.0,
+                        "10x10x10 cm",
+                        AvailabilityStatus.AVAILABLE,
+                        1L);
 
         // When & Then
         assertThatThrownBy(() -> productService.updateProduct(nonExistentId, updateRequest))
-            .isInstanceOf(ProductNotFoundException.class)
-            .hasMessageContaining("999");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessageContaining("999");
     }
 
     @Test
@@ -208,7 +208,7 @@ class ProductServiceTest {
 
         // Then
         assertThatThrownBy(() -> productService.getProductById(productId))
-            .isInstanceOf(ProductNotFoundException.class);
+                .isInstanceOf(ProductNotFoundException.class);
     }
 
     @Test

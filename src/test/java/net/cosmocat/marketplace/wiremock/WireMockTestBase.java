@@ -15,14 +15,14 @@ public abstract class WireMockTestBase {
     @BeforeEach
     public void startWireMock() {
         wireMockServer = new WireMockServer(
-            WireMockConfiguration.options()
-                .port(WIREMOCK_PORT)
-                .dynamicPort()
+                WireMockConfiguration.options()
+                        .port(WIREMOCK_PORT)
+                        .dynamicPort()
         );
         wireMockServer.start();
 
         System.setProperty("wiremock.server.baseUrl",
-            "http://localhost:" + wireMockServer.port());
+                "http://localhost:" + wireMockServer.port());
     }
 
     @AfterEach

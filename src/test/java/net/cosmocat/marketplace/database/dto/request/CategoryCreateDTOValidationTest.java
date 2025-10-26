@@ -98,7 +98,7 @@ class CategoryCreateDTOValidationTest {
             // Then - May have cosmic word violation but not size violation
             assertThat(violations)
                     .filteredOn(v -> v.getPropertyPath().toString().equals("name")
-                            && v.getMessage().contains("size"))
+                                     && v.getMessage().contains("size"))
                     .isEmpty();
         }
 

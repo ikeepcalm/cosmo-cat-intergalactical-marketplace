@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 class GalacticPriceServiceTest extends WireMockTestBase {
 
     private GalacticPriceService galacticPriceService;
-    private RestTemplate restTemplate;
 
     @TestConfiguration
     static class TestConfig {
@@ -30,7 +29,7 @@ class GalacticPriceServiceTest extends WireMockTestBase {
 
     @BeforeEach
     public void setUpService() {
-        restTemplate = new RestTemplateBuilder().build();
+        RestTemplate restTemplate = new RestTemplateBuilder().build();
         galacticPriceService = new GalacticPriceService(restTemplate, getWireMockBaseUrl());
 
         wireMockServer.resetAll();
@@ -264,7 +263,6 @@ class GalacticPriceServiceTest extends WireMockTestBase {
         @DisplayName("Should return false when health endpoint is unreachable")
         void shouldReturnFalseWhenEndpointUnreachable() {
             // Given - No stub (endpoint doesn't exist)
-            // WireMock will return 404 for unstubbed endpoints
 
             // When
             boolean isAvailable = galacticPriceService.isServiceAvailable();
@@ -342,8 +340,6 @@ class GalacticPriceServiceTest extends WireMockTestBase {
             galacticPriceService.convertToGalacticCredits(100.0, "USD");
 
             // Then - Verify request was made (demonstrates header verification capability)
-            // In real scenarios with authentication, you would verify Authorization header:
-            // .withHeader("Authorization", equalTo("Bearer token"))
             wireMockServer.verify(getRequestedFor(urlPathMatching("/api/v1/currency/convert.*")));
         }
     }

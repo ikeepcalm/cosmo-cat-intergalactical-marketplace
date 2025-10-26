@@ -50,6 +50,20 @@ tasks.named('test') {
     finalizedBy 'jacocoTestReport'
 }
 
+ext {
+    minimumCoveragePerFile = 0.80
+    filesExcludedFromCoverage = [
+            '**/dto/**',
+            '**/entity/**',
+            '**/mapper/**',
+            '**/CosmocatMarketplaceApplication**',
+            '**/exception/**'
+    ]
+}
+
+apply from: "${rootProject.projectDir}/gradle/test.gradle"
+apply from: "${rootProject.projectDir}/gradle/jacoco.gradle"
+
 jacocoTestReport {
     dependsOn test
     reports {

@@ -16,8 +16,16 @@ public interface ProductMapper {
 
   List<ProductDTO> toDTOList(List<Product> products);
 
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "category", ignore = true)
   Product toEntity(ProductCreateDTO request);
 
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "category", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateEntityFromRequest(ProductUpdateDTO request, @MappingTarget Product product);
 }

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'net.cosmocat.marketplace'
@@ -32,9 +33,39 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.wiremock:wiremock-standalone:3.3.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+jacoco {
+    toolVersion = '0.8.10'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+ext {
+    minimumCoveragePerFile = 0.80
+    filesExcludedFromCoverage = [
+            '**/dto/**',
+            '**/entity/**',
+            '**/mapper/**',
+            '**/CosmocatMarketplaceApplication**',
+            '**/exception/**',
+            '**/config/**'
+    ]
+}
+
+apply from: "${rootProject.projectDir}/gradle/test.gradle"
+apply from: "${rootProject.projectDir}/gradle/jacoco.gradle"
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = false
+        html.required = true
+        csv.required = false
+    }
 }

@@ -2,35 +2,36 @@ package net.cosmocat.marketplace.wiremock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest
 public abstract class WireMockTestBase {
 
-    protected WireMockServer wireMockServer;
-    protected static final int WIREMOCK_PORT = 8089;
+    protected static WireMockServer wireMockServer;
 
-    @BeforeEach
-    public void startWireMock() {
+    @BeforeAll
+    public static void startWireMock() {
         wireMockServer = new WireMockServer(
                 WireMockConfiguration.options()
-                        .port(WIREMOCK_PORT)
                         .dynamicPort()
         );
         wireMockServer.start();
-
-        System.setProperty("wiremock.server.baseUrl",
-                "http://localhost:" + wireMockServer.port());
     }
 
-    @AfterEach
-    public void stopWireMock() {
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("external.api.baseurl", () -> "http://localhost:" + wireMockServer.port());
+    }
+
+    @AfterAll
+    public static void stopWireMock() {
         if (wireMockServer != null && wireMockServer.isRunning()) {
             wireMockServer.stop();
         }
-        System.clearProperty("wiremock.server.baseUrl");
     }
 
     protected String getWireMockBaseUrl() {

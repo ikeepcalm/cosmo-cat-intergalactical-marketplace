@@ -11,15 +11,25 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@SpringBootTest(classes = ProductServiceTest.TestConfig.class)
 @DisplayName("ProductService Tests")
 class ProductServiceTest {
+
+    @TestConfiguration
+    @ComponentScan(basePackages = {
+            "net.cosmocat.marketplace.database.dal.service",
+            "net.cosmocat.marketplace.mapper"
+    })
+    static class TestConfig {
+    }
 
     @Autowired
     private ProductService productService;

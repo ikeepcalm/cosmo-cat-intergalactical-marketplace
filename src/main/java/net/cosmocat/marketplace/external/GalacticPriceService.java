@@ -3,36 +3,36 @@ package net.cosmocat.marketplace.external;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Service
 public class GalacticPriceService {
 
-    private final RestTemplate restTemplate;
-    private final String externalApiBaseUrl;
+    private final RestClient restClient;
 
     public GalacticPriceService(
-        RestTemplate restTemplate,
-        @Value("${external.api.baseurl:http://localhost:8089}") String externalApiBaseUrl
+            RestClient.Builder restClientBuilder,
+            @Value("${external.api.baseurl:http://localhost:8089}") String externalApiBaseUrl
     ) {
-        this.restTemplate = restTemplate;
-        this.externalApiBaseUrl = externalApiBaseUrl;
+        this.restClient = restClientBuilder
+                .baseUrl(externalApiBaseUrl)
+                .build();
     }
 
     public Double convertToGalacticCredits(Double amount, String fromCurrency) {
         try {
-            String url = String.format(
-                "%s/api/v1/currency/convert?amount=%s&from=%s&to=GLC",
-                externalApiBaseUrl, amount, fromCurrency
-            );
+            log.debug("Converting {} {} to GLC", amount, fromCurrency);
 
-            log.debug("Calling external API: {}", url);
-
-            CurrencyConversionResponse response = restTemplate.getForObject(
-                url,
-                CurrencyConversionResponse.class
-            );
+            CurrencyConversionResponse response = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/api/v1/currency/convert")
+                            .queryParam("amount", amount)
+                            .queryParam("from", fromCurrency)
+                            .queryParam("to", "GLC")
+                            .build())
+                    .retrieve()
+                    .body(CurrencyConversionResponse.class);
 
             if (response == null) {
                 throw new ExternalApiException("No response from currency conversion API");
@@ -42,6 +42,8 @@ public class GalacticPriceService {
 
             return response.convertedAmount();
 
+        } catch (ExternalApiException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to convert currency: {}", e.getMessage(), e);
             throw new ExternalApiException("Currency conversion failed", e);
@@ -50,13 +52,12 @@ public class GalacticPriceService {
 
     public boolean isServiceAvailable() {
         try {
-            String url = externalApiBaseUrl + "/api/v1/health";
-            log.debug("Checking service health: {}", url);
+            log.debug("Checking service health");
 
-            HealthCheckResponse response = restTemplate.getForObject(
-                url,
-                HealthCheckResponse.class
-            );
+            HealthCheckResponse response = restClient.get()
+                    .uri("/api/v1/health")
+                    .retrieve()
+                    .body(HealthCheckResponse.class);
 
             return response != null && "UP".equals(response.status());
 
@@ -67,17 +68,19 @@ public class GalacticPriceService {
     }
 
     public record CurrencyConversionResponse(
-        Double originalAmount,
-        String fromCurrency,
-        String toCurrency,
-        Double convertedAmount,
-        Double exchangeRate
-    ) {}
+            Double originalAmount,
+            String fromCurrency,
+            String toCurrency,
+            Double convertedAmount,
+            Double exchangeRate
+    ) {
+    }
 
     public record HealthCheckResponse(
-        String status,
-        String service
-    ) {}
+            String status,
+            String service
+    ) {
+    }
 
     public static class ExternalApiException extends RuntimeException {
         public ExternalApiException(String message) {

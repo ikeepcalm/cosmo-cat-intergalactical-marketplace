@@ -10,9 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @DisplayName("GalacticPriceService WireMock Integration Tests")
 class GalacticPriceServiceTest extends WireMockTestBase {
@@ -22,15 +21,15 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     @TestConfiguration
     static class TestConfig {
         @Bean
-        public RestTemplate testRestTemplate() {
-            return new RestTemplateBuilder().build();
+        public RestClient.Builder testRestClientBuilder() {
+            return RestClient.builder();
         }
     }
 
     @BeforeEach
     public void setUpService() {
-        RestTemplate restTemplate = new RestTemplateBuilder().build();
-        galacticPriceService = new GalacticPriceService(restTemplate, getWireMockBaseUrl());
+        RestClient.Builder restClientBuilder = RestClient.builder();
+        galacticPriceService = new GalacticPriceService(restClientBuilder, getWireMockBaseUrl());
 
         wireMockServer.resetAll();
     }

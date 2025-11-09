@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import net.cosmocat.marketplace.exception.type.FeatureNotAvailableException;
 import net.cosmocat.marketplace.exception.type.ResourceConflictException;
 import net.cosmocat.marketplace.exception.type.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -227,6 +228,23 @@ public class GlobalExceptionHandler {
     problemDetail.setProperty("traceId", traceId);
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+  }
+
+  @ExceptionHandler(FeatureNotAvailableException.class)
+  public ResponseEntity<ProblemDetail> handleFeatureNotAvailableException(
+      FeatureNotAvailableException ex, HttpServletRequest request) {
+
+    String traceId = UUID.randomUUID().toString();
+    log.warn("Feature not available [{}]: {}", traceId, ex.getMessage());
+
+    ProblemDetail problemDetail =
+        ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+    problemDetail.setTitle("Feature Not Available");
+    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    problemDetail.setProperty("timestamp", Instant.now());
+    problemDetail.setProperty("traceId", traceId);
+
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
   }
 
   @ExceptionHandler(Exception.class)

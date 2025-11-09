@@ -108,7 +108,7 @@ public class ProductService {
   public List<ProductDTO> getAllProducts() {
     log.info("Retrieving all products");
     List<Product> productList = new ArrayList<>(products.values());
-    return productMapper.toDTOList(productList);
+    return productMapper.toProductDTOList(productList);
   }
 
   public ProductDTO getProductById(Long id) {
@@ -117,7 +117,7 @@ public class ProductService {
     if (product == null) {
       throw ProductNotFoundException.forId(id);
     }
-    return productMapper.toDTO(product);
+    return productMapper.toProductDTO(product);
   }
 
   public ProductDTO createProduct(ProductCreateDTO request) {
@@ -131,7 +131,7 @@ public class ProductService {
       }
     }
 
-    Product product = productMapper.toEntity(request);
+    Product product = productMapper.toProductEntity(request);
     Long id = productIdGenerator.getAndIncrement();
     product.setId(id);
     product.setCreatedAt(LocalDateTime.now());
@@ -149,7 +149,7 @@ public class ProductService {
     products.put(id, product);
     log.info("Product created successfully with ID: {}", id);
 
-    return productMapper.toDTO(product);
+    return productMapper.toProductDTO(product);
   }
 
   public ProductDTO updateProduct(Long id, ProductUpdateDTO request) {
@@ -160,7 +160,7 @@ public class ProductService {
       throw ProductNotFoundException.forId(id);
     }
 
-    productMapper.updateEntityFromRequest(request, existingProduct);
+    productMapper.updateProductEntityFromRequest(request, existingProduct);
 
     if (request.getCategoryId() != null) {
       Category category = categories.get(request.getCategoryId());
@@ -175,7 +175,7 @@ public class ProductService {
     products.put(id, existingProduct);
     log.info("Product updated successfully with ID: {}", id);
 
-    return productMapper.toDTO(existingProduct);
+    return productMapper.toProductDTO(existingProduct);
   }
 
   public void deleteProduct(Long id) {
@@ -189,6 +189,6 @@ public class ProductService {
         products.values().stream()
             .filter(product -> product.getName().toLowerCase().contains(name.toLowerCase()))
             .toList();
-    return productMapper.toDTOList(productList);
+    return productMapper.toProductDTOList(productList);
   }
 }

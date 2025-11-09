@@ -1,11 +1,11 @@
-package net.cosmocat.marketplace.config;
+package net.cosmocat.marketplace.aop;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.exception.type.FeatureNotAvailableException;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +17,8 @@ public class FeatureToggleAspect {
 
   private final FeatureToggleService featureToggleService;
 
-  @Around("@annotation(net.cosmocat.marketplace.config.FeatureToggle)")
-  public Object checkFeatureToggle(ProceedingJoinPoint joinPoint) throws Throwable {
+  @Before("@annotation(net.cosmocat.marketplace.aop.FeatureToggle)")
+  public void checkFeatureToggle(JoinPoint joinPoint) {
     MethodSignature signature = (MethodSignature) joinPoint.getSignature();
     FeatureToggle featureToggle = signature.getMethod().getAnnotation(FeatureToggle.class);
 
@@ -26,15 +26,14 @@ public class FeatureToggleAspect {
 
     log.debug("Checking feature toggle for: {}", featureName);
 
-    if (featureToggleService.isFeatureEnabled(featureName)) {
-      log.debug("Feature '{}' is enabled, proceeding with execution", featureName);
-      return joinPoint.proceed();
-    } else {
+    if (!featureToggleService.isFeatureEnabled(featureName)) {
       log.warn(
           "Feature '{}' is disabled, throwing FeatureNotAvailableException for method: {}",
           featureName,
           signature.getMethod().getName());
       throw new FeatureNotAvailableException(featureName);
     }
+
+    log.debug("Feature '{}' is enabled, proceeding with execution", featureName);
   }
 }

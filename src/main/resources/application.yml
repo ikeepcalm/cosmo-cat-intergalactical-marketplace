@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: CosmocatMarketplace
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui
+    operations-sorter: method
+    tags-sorter: alpha
+
+feature:
+  cosmoCats:
+    enabled: true
+  kittyProducts:
+    enabled: false

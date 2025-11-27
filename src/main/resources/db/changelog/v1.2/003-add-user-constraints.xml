@@ -5,16 +5,16 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <changeSet id="008-add-product-name-category-unique-constraint" author="student">
+    <changeSet id="010-add-user-email-unique-constraint" author="student">
         <addUniqueConstraint
-                tableName="products"
-                columnNames="name, category_id"
-                constraintName="uk_products_name_category"/>
+                tableName="users"
+                columnNames="email"
+                constraintName="uk_users_email"/>
     </changeSet>
 
-    <changeSet id="009-add-product-name-index" author="student">
-        <createIndex indexName="idx_products_name" tableName="products">
-            <column name="name"/>
+    <changeSet id="011-add-user-email-index" author="student">
+        <createIndex indexName="idx_users_email" tableName="users">
+            <column name="email"/>
         </createIndex>
     </changeSet>
 

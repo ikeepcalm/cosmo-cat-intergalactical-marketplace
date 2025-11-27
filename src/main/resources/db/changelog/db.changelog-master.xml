@@ -7,5 +7,6 @@
 
     <include file="db/changelog/v1.0/001-create-base-schema.xml"/>
     <include file="db/changelog/v1.1/002-add-product-constraints.xml"/>
+    <include file="db/changelog/v1.2/003-add-user-constraints.xml"/>
 
 </databaseChangeLog>

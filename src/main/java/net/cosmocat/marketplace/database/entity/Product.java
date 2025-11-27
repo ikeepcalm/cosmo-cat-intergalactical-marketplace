@@ -53,7 +53,7 @@ public class Product {
   private LocalDateTime updatedAt;
 
   @ManyToOne
-  @JoinColumn(name = "category_id", referencedColumnName = "id")
+  @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
   private Category category;
 
   @PrePersist

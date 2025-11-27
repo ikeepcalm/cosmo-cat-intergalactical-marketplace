@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/cosmocat_marketplace
-    username: root
-    password: root
+    username: postgres
+    password: 1007
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -22,7 +22,7 @@ spring:
     enabled: true
 
 server:
-  port: 8080
+  port: 8085
 
 springdoc:
   api-docs:

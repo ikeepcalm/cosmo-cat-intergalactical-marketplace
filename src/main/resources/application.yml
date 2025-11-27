@@ -2,6 +2,25 @@ spring:
   application:
     name: CosmocatMarketplace
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cosmocat_marketplace
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
 server:
   port: 8080
 

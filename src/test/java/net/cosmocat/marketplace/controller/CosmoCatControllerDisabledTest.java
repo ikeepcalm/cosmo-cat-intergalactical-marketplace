@@ -20,17 +20,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("CosmoCatController Integration Tests - Feature Disabled")
 class CosmoCatControllerDisabledTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Test
-  @WithMockUser
-  @DisplayName("Should return 403 Forbidden when feature toggle is disabled")
-  void shouldReturnForbiddenWhenFeatureDisabled() throws Exception {
-    // When & Then
-    mockMvc
-        .perform(get("/api/cosmo-cats"))
-        .andExpect(status().isForbidden())
-        .andExpect(jsonPath("$.title", is("Feature Not Available")))
-        .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("cosmoCats")));
-  }
+    @Test
+    @WithMockUser
+    @DisplayName("Should return 403 Forbidden when feature toggle is disabled")
+    void shouldReturnForbiddenWhenFeatureDisabled() throws Exception {
+        // When & Then
+        mockMvc
+                .perform(get("/api/cosmo-cats"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.title", is("Feature Not Available")))
+                .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("cosmoCats")));
+    }
 }

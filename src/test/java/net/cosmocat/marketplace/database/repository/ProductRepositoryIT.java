@@ -51,7 +51,7 @@ class ProductRepositoryIT extends TestContainersBaseTest {
     }
 
     private Product createProduct(String name, String description, Double price, String currency,
-                                   Category category, String sku, Integer stockQuantity) {
+                                  Category category, String sku, Integer stockQuantity) {
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);

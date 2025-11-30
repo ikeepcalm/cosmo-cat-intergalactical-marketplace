@@ -1,14 +1,14 @@
 package net.cosmocat.marketplace.external;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import net.cosmocat.marketplace.wiremock.WireMockTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("GalacticPriceService Integration Tests")
 class GalacticPriceServiceTest extends WireMockTestBase {
@@ -26,24 +26,24 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldSendCorrectRequestForCurrencyConversion() {
         // Given
         wireMockServer.stubFor(get(urlPathEqualTo("/api/v1/currency/convert"))
-            .willReturn(okJson("""
-                {
-                  "originalAmount": 100.0,
-                  "fromCurrency": "USD",
-                  "toCurrency": "GLC",
-                  "convertedAmount": 42.0,
-                  "exchangeRate": 0.42
-                }
-                """)));
+                .willReturn(okJson("""
+                        {
+                          "originalAmount": 100.0,
+                          "fromCurrency": "USD",
+                          "toCurrency": "GLC",
+                          "convertedAmount": 42.0,
+                          "exchangeRate": 0.42
+                        }
+                        """)));
 
         // When
         galacticPriceService.convertToGalacticCredits(100.0, "USD");
 
         // Then
         wireMockServer.verify(getRequestedFor(urlPathEqualTo("/api/v1/currency/convert"))
-            .withQueryParam("amount", equalTo("100.0"))
-            .withQueryParam("from", equalTo("USD"))
-            .withQueryParam("to", equalTo("GLC")));
+                .withQueryParam("amount", equalTo("100.0"))
+                .withQueryParam("from", equalTo("USD"))
+                .withQueryParam("to", equalTo("GLC")));
     }
 
     @Test
@@ -51,15 +51,15 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldParseApiResponseCorrectly() {
         // Given
         wireMockServer.stubFor(get(urlPathMatching("/api/v1/currency/convert.*"))
-            .willReturn(okJson("""
-                {
-                  "originalAmount": 250.0,
-                  "fromCurrency": "EUR",
-                  "toCurrency": "GLC",
-                  "convertedAmount": 117.5,
-                  "exchangeRate": 0.47
-                }
-                """)));
+                .willReturn(okJson("""
+                        {
+                          "originalAmount": 250.0,
+                          "fromCurrency": "EUR",
+                          "toCurrency": "GLC",
+                          "convertedAmount": 117.5,
+                          "exchangeRate": 0.47
+                        }
+                        """)));
 
         // When
         Double result = galacticPriceService.convertToGalacticCredits(250.0, "EUR");
@@ -69,8 +69,8 @@ class GalacticPriceServiceTest extends WireMockTestBase {
 
         // Verify
         wireMockServer.verify(getRequestedFor(urlPathMatching("/api/v1/currency/convert.*"))
-            .withQueryParam("amount", equalTo("250.0"))
-            .withQueryParam("from", equalTo("EUR")));
+                .withQueryParam("amount", equalTo("250.0"))
+                .withQueryParam("from", equalTo("EUR")));
     }
 
     @Test
@@ -78,12 +78,12 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldCheckHealthAtCorrectEndpoint() {
         // Given
         wireMockServer.stubFor(get(urlEqualTo("/api/v1/health"))
-            .willReturn(okJson("""
-                {
-                  "status": "UP",
-                  "service": "galactic-price-service"
-                }
-                """)));
+                .willReturn(okJson("""
+                        {
+                          "status": "UP",
+                          "service": "galactic-price-service"
+                        }
+                        """)));
 
         // When
         boolean result = galacticPriceService.isServiceAvailable();
@@ -98,15 +98,15 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldValidateApiContract() {
         // Given
         wireMockServer.stubFor(get(urlPathMatching("/api/v1/currency/convert.*"))
-            .willReturn(okJson("""
-                {
-                  "originalAmount": 100.0,
-                  "fromCurrency": "USD",
-                  "toCurrency": "GLC",
-                  "convertedAmount": 42.0,
-                  "exchangeRate": 0.42
-                }
-                """)));
+                .willReturn(okJson("""
+                        {
+                          "originalAmount": 100.0,
+                          "fromCurrency": "USD",
+                          "toCurrency": "GLC",
+                          "convertedAmount": 42.0,
+                          "exchangeRate": 0.42
+                        }
+                        """)));
 
         // When
         Double result = galacticPriceService.convertToGalacticCredits(100.0, "USD");
@@ -117,9 +117,9 @@ class GalacticPriceServiceTest extends WireMockTestBase {
 
         // Verify
         wireMockServer.verify(getRequestedFor(urlPathMatching("/api/v1/currency/convert.*"))
-            .withQueryParam("amount", matching("\\d+\\.\\d+"))  // Validates we send decimal format
-            .withQueryParam("from", matching("[A-Z]{3}"))       // Validates we send 3-letter currency code
-            .withQueryParam("to", equalTo("GLC")));             // Validates we always convert to GLC
+                .withQueryParam("amount", matching("\\d+\\.\\d+"))  // Validates we send decimal format
+                .withQueryParam("from", matching("[A-Z]{3}"))       // Validates we send 3-letter currency code
+                .withQueryParam("to", equalTo("GLC")));             // Validates we always convert to GLC
     }
 
     @Test
@@ -127,12 +127,12 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldHandleServiceDown() {
         // Given - API returns DOWN status
         wireMockServer.stubFor(get(urlEqualTo("/api/v1/health"))
-            .willReturn(okJson("""
-                {
-                  "status": "DOWN",
-                  "service": "galactic-price-service"
-                }
-                """)));
+                .willReturn(okJson("""
+                        {
+                          "status": "DOWN",
+                          "service": "galactic-price-service"
+                        }
+                        """)));
 
         // When
         boolean result = galacticPriceService.isServiceAvailable();
@@ -147,7 +147,7 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldHandleHealthCheckError() {
         // Given - API endpoint returns 500 error
         wireMockServer.stubFor(get(urlEqualTo("/api/v1/health"))
-            .willReturn(serverError()));
+                .willReturn(serverError()));
 
         // When
         boolean result = galacticPriceService.isServiceAvailable();
@@ -162,10 +162,10 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldHandleNullHealthCheckResponse() {
         // Given - API returns empty/null response
         wireMockServer.stubFor(get(urlEqualTo("/api/v1/health"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("null")));
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("null")));
 
         // When
         boolean result = galacticPriceService.isServiceAvailable();
@@ -179,16 +179,16 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldHandleDifferentCurrencyCodes() {
         // Given - API supports multiple currencies
         wireMockServer.stubFor(get(urlPathMatching("/api/v1/currency/convert.*"))
-            .withQueryParam("from", equalTo("JPY"))
-            .willReturn(okJson("""
-                {
-                  "originalAmount": 1000.0,
-                  "fromCurrency": "JPY",
-                  "toCurrency": "GLC",
-                  "convertedAmount": 3.5,
-                  "exchangeRate": 0.0035
-                }
-                """)));
+                .withQueryParam("from", equalTo("JPY"))
+                .willReturn(okJson("""
+                        {
+                          "originalAmount": 1000.0,
+                          "fromCurrency": "JPY",
+                          "toCurrency": "GLC",
+                          "convertedAmount": 3.5,
+                          "exchangeRate": 0.0035
+                        }
+                        """)));
 
         // When
         Double result = galacticPriceService.convertToGalacticCredits(1000.0, "JPY");
@@ -198,7 +198,7 @@ class GalacticPriceServiceTest extends WireMockTestBase {
 
         // Verify we sent the correct currency code
         wireMockServer.verify(getRequestedFor(urlPathMatching("/api/v1/currency/convert.*"))
-            .withQueryParam("from", equalTo("JPY")));
+                .withQueryParam("from", equalTo("JPY")));
     }
 
     @Test
@@ -206,14 +206,14 @@ class GalacticPriceServiceTest extends WireMockTestBase {
     void shouldHandleApiErrorsDuringConversion() {
         // Given - API returns error
         wireMockServer.stubFor(get(urlPathMatching("/api/v1/currency/convert.*"))
-            .willReturn(aResponse()
-                .withStatus(500)
-                .withBody("Internal Server Error")));
+                .willReturn(aResponse()
+                        .withStatus(500)
+                        .withBody("Internal Server Error")));
 
         // When & Then - Verify our service wraps the error properly
         assertThatThrownBy(() -> galacticPriceService.convertToGalacticCredits(100.0, "USD"))
-            .isInstanceOf(GalacticPriceService.ExternalApiException.class)
-            .hasMessageContaining("Currency conversion failed");
+                .isInstanceOf(GalacticPriceService.ExternalApiException.class)
+                .hasMessageContaining("Currency conversion failed");
 
         // Verify the request was made to the correct endpoint
         wireMockServer.verify(getRequestedFor(urlPathMatching("/api/v1/currency/convert.*")));

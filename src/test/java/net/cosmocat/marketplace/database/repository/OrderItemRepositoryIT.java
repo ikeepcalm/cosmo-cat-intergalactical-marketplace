@@ -1,11 +1,7 @@
 package net.cosmocat.marketplace.database.repository;
 
 import net.cosmocat.marketplace.TestContainersBaseTest;
-import net.cosmocat.marketplace.database.entity.Category;
-import net.cosmocat.marketplace.database.entity.Order;
-import net.cosmocat.marketplace.database.entity.OrderItem;
-import net.cosmocat.marketplace.database.entity.Product;
-import net.cosmocat.marketplace.database.entity.User;
+import net.cosmocat.marketplace.database.entity.*;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
 import net.cosmocat.marketplace.database.entity.source.OrderStatus;
 import net.cosmocat.marketplace.database.projection.ProductPurchaseReport;
@@ -100,7 +96,7 @@ class OrderItemRepositoryIT extends TestContainersBaseTest {
     }
 
     private Product createProduct(String name, String description, Double price, String currency,
-                                   Category category, String sku, Integer stockQuantity) {
+                                  Category category, String sku, Integer stockQuantity) {
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);

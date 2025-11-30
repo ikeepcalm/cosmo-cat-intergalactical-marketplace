@@ -39,7 +39,7 @@ class CategoryRepositoryIT extends TestContainersBaseTest {
         electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets", Arrays.asList("tech", "gadgets"));
         booksCategory = createCategory("Books", "Books and literature", Arrays.asList("reading", "education"));
         clothingCategory = createCategory("Clothing", "Apparel and fashion items", Arrays.asList("fashion", "wearables"));
-        emptyCategory = createCategory("Empty", "Category with no products", Arrays.asList("misc"));
+        emptyCategory = createCategory("Empty", "Category with no products", List.of("misc"));
 
         createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
         createProduct("Smartphone Samsung", "Latest Android smartphone", 699.99, "USD", electronicsCategory, "PHONE001", 25);
@@ -55,7 +55,7 @@ class CategoryRepositoryIT extends TestContainersBaseTest {
     }
 
     private Product createProduct(String name, String description, Double price, String currency,
-                                   Category category, String sku, Integer stockQuantity) {
+                                  Category category, String sku, Integer stockQuantity) {
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);
@@ -250,7 +250,7 @@ class CategoryRepositoryIT extends TestContainersBaseTest {
         Category duplicateCategory = new Category();
         duplicateCategory.setName("Electronics"); // Duplicate name
         duplicateCategory.setDescription("Another electronics category");
-        duplicateCategory.setTags(Arrays.asList("duplicate"));
+        duplicateCategory.setTags(List.of("duplicate"));
 
         // When & Then
         assertThatThrownBy(() -> categoryRepository.save(duplicateCategory))

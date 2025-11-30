@@ -15,6 +15,10 @@ java {
     }
 }
 
+springBoot {
+    mainClass = 'net.cosmocat.marketplace.CosmocatMarketplaceApplication'
+}
+
 repositories {
     mavenCentral()
 }

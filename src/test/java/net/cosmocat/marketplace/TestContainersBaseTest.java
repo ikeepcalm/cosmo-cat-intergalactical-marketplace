@@ -1,6 +1,5 @@
 package net.cosmocat.marketplace;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -8,7 +7,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers
 public abstract class TestContainersBaseTest {
 
@@ -17,8 +16,7 @@ public abstract class TestContainersBaseTest {
             new PostgreSQLContainer<>("postgres:16-alpine")
                     .withDatabaseName("testdb")
                     .withUsername("test")
-                    .withPassword("test")
-                    .withReuse(true);
+                    .withPassword("test");
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -28,10 +26,5 @@ public abstract class TestContainersBaseTest {
         registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
         registry.add("spring.liquibase.enabled", () -> "true");
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
-    }
-
-    @BeforeAll
-    static void beforeAll() {
-        postgresContainer.start();
     }
 }

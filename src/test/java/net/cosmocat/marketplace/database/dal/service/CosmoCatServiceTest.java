@@ -50,7 +50,7 @@ class CosmoCatServiceTest {
             assertThat(cosmoCats).isNotEmpty();
             assertThat(cosmoCats).hasSize(4);
             assertThat(cosmoCats)
-                    .extracting(CosmoCatDTO::getName)
+                    .extracting(CosmoCatDTO::name)
                     .containsExactlyInAnyOrder("Luna", "Cosmo", "Stella", "Orion");
         }
 
@@ -62,14 +62,14 @@ class CosmoCatServiceTest {
 
             // Then
             CosmoCatDTO luna =
-                    cosmoCats.stream().filter(cat -> cat.getName().equals("Luna")).findFirst().orElseThrow();
+                    cosmoCats.stream().filter(cat -> cat.name().equals("Luna")).findFirst().orElseThrow();
 
-            assertThat(luna.getId()).isEqualTo(1L);
-            assertThat(luna.getBreed()).isEqualTo("Nebula Shorthair");
-            assertThat(luna.getColor()).isEqualTo("Silver");
-            assertThat(luna.getAge()).isEqualTo(3);
-            assertThat(luna.getImage()).isEqualTo("https://example.com/cats/luna.jpg");
-            assertThat(luna.getCreatedAt()).isNotNull();
+            assertThat(luna.id()).isEqualTo(1L);
+            assertThat(luna.breed()).isEqualTo("Nebula Shorthair");
+            assertThat(luna.color()).isEqualTo("Silver");
+            assertThat(luna.age()).isEqualTo(3);
+            assertThat(luna.image()).isEqualTo("https://example.com/cats/luna.jpg");
+            assertThat(luna.createdAt()).isNotNull();
         }
     }
 

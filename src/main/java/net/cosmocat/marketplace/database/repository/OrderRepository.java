@@ -34,6 +34,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o WHERE o.status = 'PENDING' AND o.orderDate < :date")
     List<Order> findOldPendingOrders(@Param("date") LocalDateTime date);
+
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.user.id = :userId AND o.status = 'DELIVERED'")
     BigDecimal calculateTotalRevenueByUser(@Param("userId") Long userId);
 

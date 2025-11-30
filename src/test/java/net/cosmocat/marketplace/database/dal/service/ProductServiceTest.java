@@ -92,7 +92,7 @@ class ProductServiceTest extends TestContainersBaseTest {
         assertThat(products).isNotEmpty();
         assertThat(products).hasSizeGreaterThanOrEqualTo(5);
         assertThat(products)
-                .extracting(ProductDTO::getName)
+                .extracting(ProductDTO::name)
                 .contains("Laptop HP Pro", "Smartphone Samsung");
     }
 
@@ -109,8 +109,8 @@ class ProductServiceTest extends TestContainersBaseTest {
 
         // Then
         assertThat(product).isNotNull();
-        assertThat(product.getId()).isEqualTo(productId);
-        assertThat(product.getName()).isEqualTo("Laptop HP Pro");
+        assertThat(product.id()).isEqualTo(productId);
+        assertThat(product.name()).isEqualTo("Laptop HP Pro");
     }
 
     @Test
@@ -150,10 +150,10 @@ class ProductServiceTest extends TestContainersBaseTest {
 
         // Then
         assertThat(createdProduct).isNotNull();
-        assertThat(createdProduct.getId()).isNotNull();
-        assertThat(createdProduct.getName()).isEqualTo("Stellar Mouse");
-        assertThat(createdProduct.getPrice()).isEqualTo(29.99);
-        assertThat(createdProduct.getSku()).isEqualTo("MOUSE001");
+        assertThat(createdProduct.id()).isNotNull();
+        assertThat(createdProduct.name()).isEqualTo("Stellar Mouse");
+        assertThat(createdProduct.price()).isEqualTo(29.99);
+        assertThat(createdProduct.sku()).isEqualTo("MOUSE001");
     }
 
     @Test
@@ -232,10 +232,10 @@ class ProductServiceTest extends TestContainersBaseTest {
 
         // Then
         assertThat(updatedProduct).isNotNull();
-        assertThat(updatedProduct.getId()).isEqualTo(productId);
-        assertThat(updatedProduct.getName()).isEqualTo("Laptop HP Pro");
-        assertThat(updatedProduct.getPrice()).isEqualTo(1099.99);
-        assertThat(updatedProduct.getStockQuantity()).isEqualTo(8);
+        assertThat(updatedProduct.id()).isEqualTo(productId);
+        assertThat(updatedProduct.name()).isEqualTo("Laptop HP Pro");
+        assertThat(updatedProduct.price()).isEqualTo(1099.99);
+        assertThat(updatedProduct.stockQuantity()).isEqualTo(8);
     }
 
     @Test
@@ -290,7 +290,7 @@ class ProductServiceTest extends TestContainersBaseTest {
         // Then
         assertThat(results).isNotEmpty();
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst().getName()).containsIgnoringCase("Laptop");
+        assertThat(results.getFirst().name()).containsIgnoringCase("Laptop");
     }
 
     @Test
@@ -313,7 +313,7 @@ class ProductServiceTest extends TestContainersBaseTest {
 
         // Then
         assertThat(results).isNotEmpty();
-        assertThat(results.getFirst().getName()).containsIgnoringCase("Laptop");
+        assertThat(results.getFirst().name()).containsIgnoringCase("Laptop");
     }
 
     @Test

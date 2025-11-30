@@ -1,6 +1,5 @@
 package net.cosmocat.marketplace.database.dal.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
@@ -19,90 +18,92 @@ import net.cosmocat.marketplace.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductService {
 
-  private final ProductMapper productMapper;
-  private final ProductRepository productRepository;
-  private final CategoryRepository categoryRepository;
-  private final OrderItemRepository orderItemRepository;
+    private final ProductMapper productMapper;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final OrderItemRepository orderItemRepository;
 
-  public List<ProductDTO> getAllProducts() {
-    log.info("Retrieving all products");
-    List<Product> productList = productRepository.findAll();
-    return productMapper.toProductDTOList(productList);
-  }
-
-  public ProductDTO getProductById(Long id) {
-    log.info("Retrieving product with ID: {}", id);
-    Product product = productRepository.findById(id)
-        .orElseThrow(() -> ProductNotFoundException.forId(id));
-    return productMapper.toProductDTO(product);
-  }
-
-  @Transactional
-  public ProductDTO createProduct(ProductCreateDTO request) {
-    log.info("Creating new product: {}", request.getName());
-
-    if (request.getSku() != null && productRepository.existsBySku(request.getSku())) {
-      throw ProductConflictException.forDuplicateSku(request.getSku());
+    public List<ProductDTO> getAllProducts() {
+        log.info("Retrieving all products");
+        List<Product> productList = productRepository.findAll();
+        return productMapper.toProductDTOList(productList);
     }
 
-    Product product = productMapper.toProductEntity(request);
-
-    if (request.getCategoryId() != null) {
-      Category category = categoryRepository.findById(request.getCategoryId())
-          .orElseThrow(() -> CategoryNotFoundException.forId(request.getCategoryId()));
-      product.setCategory(category);
+    public ProductDTO getProductById(Long id) {
+        log.info("Retrieving product with ID: {}", id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> ProductNotFoundException.forId(id));
+        return productMapper.toProductDTO(product);
     }
 
-    Product savedProduct = productRepository.save(product);
-    log.info("Product created successfully with ID: {}", savedProduct.getId());
+    @Transactional
+    public ProductDTO createProduct(ProductCreateDTO request) {
+        log.info("Creating new product: {}", request.name());
 
-    return productMapper.toProductDTO(savedProduct);
-  }
+        if (request.sku() != null && productRepository.existsBySku(request.sku())) {
+            throw ProductConflictException.forDuplicateSku(request.sku());
+        }
 
-  @Transactional
-  public ProductDTO updateProduct(Long id, ProductUpdateDTO request) {
-    log.info("Updating product with ID: {}", id);
+        Product product = productMapper.toProductEntity(request);
 
-    Product existingProduct = productRepository.findById(id)
-        .orElseThrow(() -> ProductNotFoundException.forId(id));
+        if (request.categoryId() != null) {
+            Category category = categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> CategoryNotFoundException.forId(request.categoryId()));
+            product.setCategory(category);
+        }
 
-    productMapper.updateProductEntityFromRequest(request, existingProduct);
+        Product savedProduct = productRepository.save(product);
+        log.info("Product created successfully with ID: {}", savedProduct.getId());
 
-    if (request.getCategoryId() != null) {
-      Category category = categoryRepository.findById(request.getCategoryId())
-          .orElseThrow(() -> CategoryNotFoundException.forId(request.getCategoryId()));
-      existingProduct.setCategory(category);
+        return productMapper.toProductDTO(savedProduct);
     }
 
-    Product updatedProduct = productRepository.save(existingProduct);
-    log.info("Product updated successfully with ID: {}", id);
+    @Transactional
+    public ProductDTO updateProduct(Long id, ProductUpdateDTO request) {
+        log.info("Updating product with ID: {}", id);
 
-    return productMapper.toProductDTO(updatedProduct);
-  }
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> ProductNotFoundException.forId(id));
 
-  @Transactional
-  public void deleteProduct(Long id) {
-    log.info("Deleting product with ID: {}", id);
-    if (!productRepository.existsById(id)) {
-      throw ProductNotFoundException.forId(id);
+        productMapper.updateProductEntityFromRequest(request, existingProduct);
+
+        if (request.categoryId() != null) {
+            Category category = categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> CategoryNotFoundException.forId(request.categoryId()));
+            existingProduct.setCategory(category);
+        }
+
+        Product updatedProduct = productRepository.save(existingProduct);
+        log.info("Product updated successfully with ID: {}", id);
+
+        return productMapper.toProductDTO(updatedProduct);
     }
-    productRepository.deleteById(id);
-  }
 
-  public List<ProductDTO> searchProductsByName(String name) {
-    log.info("Searching products by name: {}", name);
-    List<Product> productList = productRepository.findByNameContainingIgnoreCase(name);
-    return productMapper.toProductDTOList(productList);
-  }
+    @Transactional
+    public void deleteProduct(Long id) {
+        log.info("Deleting product with ID: {}", id);
+        if (!productRepository.existsById(id)) {
+            throw ProductNotFoundException.forId(id);
+        }
+        productRepository.deleteById(id);
+    }
 
-  public List<ProductPurchaseReport> getMostPurchasedProductsReport() {
-    log.info("Generating report for most purchased products");
-    return orderItemRepository.findMostPurchasedProducts();
-  }
+    public List<ProductDTO> searchProductsByName(String name) {
+        log.info("Searching products by name: {}", name);
+        List<Product> productList = productRepository.findByNameContainingIgnoreCase(name);
+        return productMapper.toProductDTOList(productList);
+    }
+
+    public List<ProductPurchaseReport> getMostPurchasedProductsReport() {
+        log.info("Generating report for most purchased products");
+        return orderItemRepository.findMostPurchasedProducts();
+    }
 }

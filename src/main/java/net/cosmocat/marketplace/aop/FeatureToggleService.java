@@ -13,7 +13,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "feature")
 public class FeatureToggleService {
 
-    private Map<String, FeatureConfig> features = new HashMap<>();
+    private final Map<String, FeatureConfig> features = new HashMap<>();
 
     public boolean isFeatureEnabled(String featureName) {
         FeatureConfig config = features.get(featureName);

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.database.dal.service.ProductService;
@@ -19,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -94,7 +95,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(
             @Valid @RequestBody ProductCreateDTO request) {
-        log.info("Creating new product: {}", request.getName());
+        log.info("Creating new product: {}", request.name());
         ProductDTO createdProduct = productService.createProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(createdProduct);

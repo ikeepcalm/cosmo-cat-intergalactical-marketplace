@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import net.cosmocat.marketplace.database.entity.source.OrderStatus;
+import org.hibernate.annotations.NaturalId;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +20,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NaturalId
     @Column(name = "order_number", nullable = false, unique = true, length = 50)
     private String orderNumber;
 

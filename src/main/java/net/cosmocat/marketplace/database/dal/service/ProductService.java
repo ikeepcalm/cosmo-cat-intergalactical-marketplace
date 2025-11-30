@@ -8,7 +8,9 @@ import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
 import net.cosmocat.marketplace.database.entity.Category;
 import net.cosmocat.marketplace.database.entity.Product;
+import net.cosmocat.marketplace.database.projection.ProductPurchaseReport;
 import net.cosmocat.marketplace.database.repository.CategoryRepository;
+import net.cosmocat.marketplace.database.repository.OrderItemRepository;
 import net.cosmocat.marketplace.database.repository.ProductRepository;
 import net.cosmocat.marketplace.exception.type.CategoryNotFoundException;
 import net.cosmocat.marketplace.exception.type.ProductConflictException;
@@ -26,6 +28,7 @@ public class ProductService {
   private final ProductMapper productMapper;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
+  private final OrderItemRepository orderItemRepository;
 
   public List<ProductDTO> getAllProducts() {
     log.info("Retrieving all products");
@@ -96,5 +99,10 @@ public class ProductService {
     log.info("Searching products by name: {}", name);
     List<Product> productList = productRepository.findByNameContainingIgnoreCase(name);
     return productMapper.toProductDTOList(productList);
+  }
+
+  public List<ProductPurchaseReport> getMostPurchasedProductsReport() {
+    log.info("Generating report for most purchased products");
+    return orderItemRepository.findMostPurchasedProducts();
   }
 }

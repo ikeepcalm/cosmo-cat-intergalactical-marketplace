@@ -1,6 +1,7 @@
 package net.cosmocat.marketplace.database.repository;
 
 import net.cosmocat.marketplace.database.entity.OrderItem;
+import net.cosmocat.marketplace.database.projection.ProductPurchaseReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +25,10 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     @Query("SELECT oi.product.id FROM OrderItem oi GROUP BY oi.product.id ORDER BY SUM(oi.quantity) DESC")
     List<Long> findMostOrderedProducts();
+
+    @Query("SELECT oi.product.name as productName, COUNT(oi.product) as purchaseCount " +
+           "FROM OrderItem oi " +
+           "GROUP BY oi.product.name " +
+           "ORDER BY purchaseCount DESC")
+    List<ProductPurchaseReport> findMostPurchasedProducts();
 }

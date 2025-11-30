@@ -1,41 +1,89 @@
 package net.cosmocat.marketplace.database.dal.service;
 
+import net.cosmocat.marketplace.TestContainersBaseTest;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
+import net.cosmocat.marketplace.database.entity.Category;
+import net.cosmocat.marketplace.database.entity.Product;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
+import net.cosmocat.marketplace.database.repository.CategoryRepository;
+import net.cosmocat.marketplace.database.repository.ProductRepository;
 import net.cosmocat.marketplace.exception.type.CategoryNotFoundException;
 import net.cosmocat.marketplace.exception.type.ProductConflictException;
 import net.cosmocat.marketplace.exception.type.ProductNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest(classes = ProductServiceTest.TestConfig.class)
 @DisplayName("ProductService Tests")
-class ProductServiceTest {
-
-    @TestConfiguration
-    @ComponentScan(basePackages = {
-            "net.cosmocat.marketplace.database.dal.service",
-            "net.cosmocat.marketplace.mapper"
-    })
-    static class TestConfig {
-    }
+class ProductServiceTest extends TestContainersBaseTest {
 
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    private Category electronicsCategory;
+    private Category booksCategory;
+    private Category clothingCategory;
+
+    @BeforeEach
+    void setUp() {
+        productRepository.deleteAll();
+        categoryRepository.deleteAll();
+
+        electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        booksCategory = createCategory("Books", "Books and literature");
+        clothingCategory = createCategory("Clothing", "Apparel and fashion items");
+
+        createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+        createProduct("Smartphone Samsung", "Latest Android smartphone", 699.99, "USD", electronicsCategory, "PHONE001", 25);
+        createProduct("Java Programming Book", "Complete guide to Java programming", 49.99, "USD", booksCategory, "BOOK001", 50);
+        createProduct("T-Shirt Cotton", "Comfortable cotton t-shirt", 19.99, "USD", clothingCategory, "SHIRT001", 100);
+        createProduct("Wireless Headphones", "Bluetooth wireless headphones", 129.99, "USD", electronicsCategory, "HEAD001", 15);
+    }
+
+    private Category createCategory(String name, String description) {
+        Category category = new Category();
+        category.setName(name);
+        category.setDescription(description);
+        category.setTags(Arrays.asList("popular", "featured"));
+        return categoryRepository.save(category);
+    }
+
+    private Product createProduct(String name, String description, Double price, String currency,
+                                   Category category, String sku, Integer stockQuantity) {
+        Product product = new Product();
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setCurrency(currency);
+        product.setCategory(category);
+        product.setSku(sku);
+        product.setStockQuantity(stockQuantity);
+        product.setAvailabilityStatus(AvailabilityStatus.AVAILABLE);
+        product.setWeight(1.0);
+        product.setDimensions("10x10x5 cm");
+        product.setImage("https://example.com/image.jpg");
+        return productRepository.save(product);
+    }
+
     @Test
     @DisplayName("Should retrieve all products successfully")
+    @Transactional
     void getAllProductsShouldReturnAllProducts() {
         // When
         List<ProductDTO> products = productService.getAllProducts();
@@ -50,9 +98,11 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should retrieve product by ID successfully")
+    @Transactional
     void getProductByIdWithValidIdShouldReturnProduct() {
         // Given
-        Long productId = 1L;
+        Product savedProduct = productRepository.findBySku("LAPTOP001").orElseThrow();
+        Long productId = savedProduct.getId();
 
         // When
         ProductDTO product = productService.getProductById(productId);
@@ -65,6 +115,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should throw ProductNotFoundException when product ID doesn't exist")
+    @Transactional
     void getProductByIdWithInvalidIdShouldThrowException() {
         // Given
         Long nonExistentId = 999L;
@@ -77,6 +128,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should create new product successfully")
+    @Transactional
     void createProductWithValidDataShouldCreateProduct() {
         // Given
         ProductCreateDTO createRequest =
@@ -91,7 +143,7 @@ class ProductServiceTest {
                         0.1,
                         "10x5x3 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When
         ProductDTO createdProduct = productService.createProduct(createRequest);
@@ -106,6 +158,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should throw ProductConflictException when SKU already exists")
+    @Transactional
     void createProductWithDuplicateSkuShouldThrowException() {
         // Given
         ProductCreateDTO createRequest =
@@ -120,7 +173,7 @@ class ProductServiceTest {
                         2.5,
                         "30x20x2 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When & Then
         assertThatThrownBy(() -> productService.createProduct(createRequest))
@@ -130,6 +183,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should throw CategoryNotFoundException when category doesn't exist")
+    @Transactional
     void createProductWithInvalidCategoryIdShouldThrowException() {
         // Given
         ProductCreateDTO createRequest =
@@ -154,9 +208,11 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should update existing product successfully")
+    @Transactional
     void updateProductWithValidDataShouldUpdateProduct() {
         // Given
-        Long productId = 1L;
+        Product savedProduct = productRepository.findBySku("LAPTOP001").orElseThrow();
+        Long productId = savedProduct.getId();
         ProductUpdateDTO updateRequest =
                 new ProductUpdateDTO(
                         "Laptop HP Pro",
@@ -169,7 +225,7 @@ class ProductServiceTest {
                         2.0,
                         "35x25x2 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When
         ProductDTO updatedProduct = productService.updateProduct(productId, updateRequest);
@@ -184,6 +240,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should throw ProductNotFoundException when updating non-existent product")
+    @Transactional
     void updateProductWithInvalidIdShouldThrowException() {
         // Given
         Long nonExistentId = 999L;
@@ -199,7 +256,7 @@ class ProductServiceTest {
                         1.0,
                         "10x10x10 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When & Then
         assertThatThrownBy(() -> productService.updateProduct(nonExistentId, updateRequest))
@@ -209,9 +266,11 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should delete product successfully")
+    @Transactional
     void deleteProductWithValidIdShouldDeleteProduct() {
         // Given
-        Long productId = 5L;
+        Product savedProduct = productRepository.findBySku("HEAD001").orElseThrow();
+        Long productId = savedProduct.getId();
 
         // When
         productService.deleteProduct(productId);
@@ -223,6 +282,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should search products by name successfully")
+    @Transactional
     void searchProductsByNameWithValidNameShouldReturnMatchingProducts() {
         // When
         List<ProductDTO> results = productService.searchProductsByName("Laptop");
@@ -235,6 +295,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should return empty list when no products match search")
+    @Transactional
     void searchProductsByNameWithNonMatchingNameShouldReturnEmptyList() {
         // When
         List<ProductDTO> results = productService.searchProductsByName("NonExistentProduct");
@@ -245,6 +306,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should search products case-insensitively")
+    @Transactional
     void searchProductsByNameCaseInsensitiveShouldReturnMatchingProducts() {
         // When
         List<ProductDTO> results = productService.searchProductsByName("laptop");
@@ -256,6 +318,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should return multiple products when search matches multiple items")
+    @Transactional
     void searchProductsByNameWithPartialNameShouldReturnMultipleProducts() {
         // When
         List<ProductDTO> results = productService.searchProductsByName("Shirt");

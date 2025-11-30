@@ -1,5 +1,6 @@
 package net.cosmocat.marketplace;
 
+import net.cosmocat.marketplace.config.PostgreSQLTestContainer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -8,15 +9,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public abstract class TestContainersBaseTest {
 
-    protected static final PostgreSQLContainer<?> postgresContainer;
-
-    static {
-        postgresContainer = new PostgreSQLContainer<>("postgres:16-alpine")
-                .withDatabaseName("testdb")
-                .withUsername("test")
-                .withPassword("test");
-        postgresContainer.start();
-    }
+    protected static final PostgreSQLContainer<?> postgresContainer = PostgreSQLTestContainer.getInstance();
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {

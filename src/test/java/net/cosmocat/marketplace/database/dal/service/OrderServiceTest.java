@@ -5,7 +5,6 @@ import net.cosmocat.marketplace.database.dal.repository.*;
 import net.cosmocat.marketplace.database.entity.*;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
 import net.cosmocat.marketplace.database.entity.source.OrderStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,31 +39,6 @@ class OrderServiceTest extends TestContainersBaseTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
-
-    private User testUser1;
-    private User testUser2;
-    private Product testProduct1;
-    private Product testProduct2;
-
-    @BeforeEach
-    void setUp() {
-        orderItemRepository.deleteAll();
-        orderRepository.deleteAll();
-        productRepository.deleteAll();
-        categoryRepository.deleteAll();
-        userRepository.deleteAll();
-
-        testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
-        testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
-
-        Category testCategory = createCategory("Stellar Electronics", "Electronics from across the cosmos");
-        testProduct1 = createProduct("Cosmic Laptop", "LAPTOP-001", 999.99, testCategory);
-        testProduct2 = createProduct("Stellar Phone", "PHONE-001", 599.99, testCategory);
-
-        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
-        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
-        createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
-    }
 
     private User createUser(String email, String username) {
         User user = new User();
@@ -133,6 +107,14 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve all orders successfully")
     @Transactional
     void getAllOrdersShouldReturnAllOrders() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        User testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
+
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+        createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
+
         // When
         List<Order> orders = orderService.getAllOrders();
 
@@ -146,7 +128,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void getOrderByIdWithValidIdShouldReturnOrder() {
         // Given
-        Order savedOrder = orderRepository.findByOrderNumber("ORD-001").orElseThrow();
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        Order savedOrder = createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
         Long orderId = savedOrder.getId();
 
         // When
@@ -175,6 +158,10 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve order by order number successfully")
     @Transactional
     void getOrderByOrderNumberWithValidNumberShouldReturnOrder() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+
         // When
         Order order = orderService.getOrderByOrderNumber("ORD-002");
 
@@ -198,6 +185,11 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve orders by user ID successfully")
     @Transactional
     void getOrdersByUserIdShouldReturnUserOrders() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+
         // When
         List<Order> orders = orderService.getOrdersByUserId(testUser1.getId());
 
@@ -211,6 +203,11 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve recent orders by user successfully")
     @Transactional
     void getRecentOrdersByUserShouldReturnRecentOrders() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+
         // When
         List<Order> orders = orderService.getRecentOrdersByUser(testUser1.getId());
 
@@ -223,6 +220,14 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve orders by status successfully")
     @Transactional
     void getOrdersByStatusShouldReturnMatchingOrders() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        User testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
+
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+        createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
+
         // When
         List<Order> pendingOrders = orderService.getOrdersByStatus(OrderStatus.PENDING);
         List<Order> shippedOrders = orderService.getOrdersByStatus(OrderStatus.SHIPPED);
@@ -238,6 +243,11 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve orders by user and status successfully")
     @Transactional
     void getOrdersByUserAndStatusShouldReturnMatchingOrders() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+
         // When
         List<Order> orders = orderService.getOrdersByUserAndStatus(testUser1.getId(), OrderStatus.PENDING);
 
@@ -252,6 +262,13 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void getOrdersByDateRangeShouldReturnOrdersInRange() {
         // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        User testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
+
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+        createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
+
         LocalDateTime startDate = LocalDateTime.now().minusDays(3);
         LocalDateTime endDate = LocalDateTime.now();
 
@@ -271,6 +288,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void createOrderWithValidDataShouldCreateOrder() {
         // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+
         Order newOrder = new Order();
         newOrder.setUser(testUser1);
         newOrder.setTotalAmount(BigDecimal.valueOf(1299.99));
@@ -295,6 +314,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void createOrderWithProvidedOrderNumberShouldUseIt() {
         // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+
         Order newOrder = new Order();
         newOrder.setOrderNumber("CUSTOM-ORD-123");
         newOrder.setUser(testUser1);
@@ -316,7 +337,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateOrderStatusToShippedShouldSetShippedDate() {
         // Given
-        Order pendingOrder = orderRepository.findByOrderNumber("ORD-001").orElseThrow();
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        Order pendingOrder = createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
         Long orderId = pendingOrder.getId();
 
         // When
@@ -332,7 +354,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateOrderStatusToDeliveredShouldSetDeliveredDate() {
         // Given
-        Order shippedOrder = orderRepository.findByOrderNumber("ORD-002").orElseThrow();
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        Order shippedOrder = createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
         Long orderId = shippedOrder.getId();
 
         // When
@@ -348,7 +371,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateOrderStatusToShippedWithExistingDateShouldNotOverride() {
         // Given
-        Order order = orderRepository.findByOrderNumber("ORD-002").orElseThrow();
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        Order order = createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
         LocalDateTime originalShippedDate = order.getShippedDate();
         Long orderId = order.getId();
 
@@ -364,7 +388,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateOrderWithValidDataShouldUpdateOrder() {
         // Given
-        Order existingOrder = orderRepository.findByOrderNumber("ORD-001").orElseThrow();
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        Order existingOrder = createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
         Long orderId = existingOrder.getId();
 
         Order updateData = new Order();
@@ -389,7 +414,8 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void deleteOrderWithValidIdShouldDeleteOrder() {
         // Given
-        Order order = orderRepository.findByOrderNumber("ORD-003").orElseThrow();
+        User testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
+        Order order = createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
         Long orderId = order.getId();
 
         // When
@@ -417,7 +443,12 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void getOrderItemsShouldReturnOrderItems() {
         // Given
-        Order order = orderRepository.findByOrderNumber("ORD-001").orElseThrow();
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        Category testCategory = createCategory("Stellar Electronics", "Electronics from across the cosmos");
+        Product testProduct1 = createProduct("Cosmic Laptop", "LAPTOP-001", 999.99, testCategory);
+        Product testProduct2 = createProduct("Stellar Phone", "PHONE-001", 599.99, testCategory);
+
+        Order order = createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
         createOrderItem(order, testProduct1, 2, BigDecimal.valueOf(999.99));
         createOrderItem(order, testProduct2, 1, BigDecimal.valueOf(599.99));
 
@@ -433,7 +464,11 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should calculate total revenue by user successfully")
     @Transactional
     void calculateTotalRevenueByUserShouldReturnCorrectAmount() {
-        // When - testUser2 has a DELIVERED order, testUser1 does not
+        // Given
+        User testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
+        createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
+
+        // When - testUser2 has a DELIVERED order
         BigDecimal revenue = orderService.calculateTotalRevenueByUser(testUser2.getId());
 
         // Then
@@ -459,6 +494,14 @@ class OrderServiceTest extends TestContainersBaseTest {
     @DisplayName("Should count orders by status successfully")
     @Transactional
     void countOrdersByStatusShouldReturnCorrectCount() {
+        // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
+        User testUser2 = createUser("cosmic.buyer@universe.com", "Cosmic Buyer");
+
+        createOrder(testUser1, "ORD-001", OrderStatus.PENDING, BigDecimal.valueOf(999.99), LocalDateTime.now().minusDays(1));
+        createOrder(testUser1, "ORD-002", OrderStatus.SHIPPED, BigDecimal.valueOf(599.99), LocalDateTime.now().minusDays(2));
+        createOrder(testUser2, "ORD-003", OrderStatus.DELIVERED, BigDecimal.valueOf(1599.98), LocalDateTime.now().minusDays(5));
+
         // When
         long pendingCount = orderService.countOrdersByStatus(OrderStatus.PENDING);
         long shippedCount = orderService.countOrdersByStatus(OrderStatus.SHIPPED);
@@ -475,6 +518,7 @@ class OrderServiceTest extends TestContainersBaseTest {
     @Transactional
     void findOldPendingOrdersShouldReturnOldOrders() {
         // Given
+        User testUser1 = createUser("stellar.user@galaxy.com", "Stellar User");
         createOrder(testUser1, "ORD-OLD", OrderStatus.PENDING, BigDecimal.valueOf(100.00), LocalDateTime.now().minusDays(10));
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(7);
 

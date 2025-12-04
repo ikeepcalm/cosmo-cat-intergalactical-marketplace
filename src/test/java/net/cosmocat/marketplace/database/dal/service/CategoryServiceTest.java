@@ -10,7 +10,6 @@ import net.cosmocat.marketplace.database.dal.repository.CategoryRepository;
 import net.cosmocat.marketplace.database.dal.repository.ProductRepository;
 import net.cosmocat.marketplace.exception.type.CategoryConflictException;
 import net.cosmocat.marketplace.exception.type.CategoryNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +33,6 @@ class CategoryServiceTest extends TestContainersBaseTest {
 
     @Autowired
     private ProductRepository productRepository;
-
-    private Category stellarElectronics;
-    private Category cosmicBooks;
-    private Category galacticClothing;
-
-    @BeforeEach
-    void setUp() {
-        productRepository.deleteAll();
-        categoryRepository.deleteAll();
-
-        stellarElectronics = createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
-        cosmicBooks = createCategory("Cosmic Books", "Literature from various star systems");
-        galacticClothing = createCategory("Galactic Clothing", "Fashion items for space travelers");
-    }
 
     private Category createCategory(String name, String description) {
         Category category = new Category();
@@ -77,6 +62,11 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @DisplayName("Should retrieve all categories successfully")
     @Transactional
     void getAllCategoriesShouldReturnAllCategories() {
+        // Given
+        createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        createCategory("Cosmic Books", "Literature from various star systems");
+        createCategory("Galactic Clothing", "Fashion items for space travelers");
+
         // When
         List<CategoryDTO> categories = categoryService.getAllCategories();
 
@@ -93,6 +83,7 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void getCategoryByIdWithValidIdShouldReturnCategory() {
         // Given
+        Category stellarElectronics = createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
         Long categoryId = stellarElectronics.getId();
 
         // When
@@ -145,6 +136,8 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void createCategoryWithDuplicateNameShouldThrowException() {
         // Given
+        createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+
         CategoryCreateDTO createRequest = new CategoryCreateDTO(
                 "Stellar Electronics",
                 "Another electronics category",
@@ -162,6 +155,7 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateCategoryWithValidDataShouldUpdateCategory() {
         // Given
+        Category cosmicBooks = createCategory("Cosmic Books", "Literature from various star systems");
         Long categoryId = cosmicBooks.getId();
         CategoryCreateDTO updateRequest = new CategoryCreateDTO(
                 "Cosmic Books & Literature",
@@ -203,6 +197,8 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateCategoryWithDuplicateNameShouldThrowException() {
         // Given
+        createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        Category cosmicBooks = createCategory("Cosmic Books", "Literature from various star systems");
         Long categoryId = cosmicBooks.getId();
         CategoryCreateDTO updateRequest = new CategoryCreateDTO(
                 "Stellar Electronics",
@@ -221,6 +217,7 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void updateCategoryWithSameNameShouldSucceed() {
         // Given
+        Category cosmicBooks = createCategory("Cosmic Books", "Literature from various star systems");
         Long categoryId = cosmicBooks.getId();
         CategoryCreateDTO updateRequest = new CategoryCreateDTO(
                 "Cosmic Books",
@@ -242,6 +239,7 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void deleteCategoryWithValidIdShouldDeleteCategory() {
         // Given
+        Category galacticClothing = createCategory("Galactic Clothing", "Fashion items for space travelers");
         Long categoryId = galacticClothing.getId();
 
         // When
@@ -270,6 +268,10 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @DisplayName("Should search categories by name successfully")
     @Transactional
     void searchCategoriesByNameWithValidNameShouldReturnMatchingCategories() {
+        // Given
+        createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        createCategory("Cosmic Books", "Literature from various star systems");
+
         // When
         List<CategoryDTO> results = categoryService.searchCategoriesByName("Electronics");
 
@@ -283,6 +285,9 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @DisplayName("Should search categories case-insensitively")
     @Transactional
     void searchCategoriesByNameCaseInsensitiveShouldReturnMatchingCategories() {
+        // Given
+        createCategory("Cosmic Books", "Literature from various star systems");
+
         // When
         List<CategoryDTO> results = categoryService.searchCategoriesByName("cosmic");
 
@@ -307,6 +312,11 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @DisplayName("Should find categories by tag successfully")
     @Transactional
     void findCategoriesByTagWithValidTagShouldReturnMatchingCategories() {
+        // Given
+        createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        createCategory("Cosmic Books", "Literature from various star systems");
+        createCategory("Galactic Clothing", "Fashion items for space travelers");
+
         // When
         List<CategoryDTO> results = categoryService.findCategoriesByTag("cosmic");
 
@@ -331,6 +341,10 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void findCategoriesWithProductsShouldReturnOnlyCategoriesWithProducts() {
         // Given
+        Category stellarElectronics = createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        Category cosmicBooks = createCategory("Cosmic Books", "Literature from various star systems");
+        createCategory("Galactic Clothing", "Fashion items for space travelers");
+
         createProduct("Stellar Laptop", "LAPTOP-COSMIC", stellarElectronics);
         createProduct("Cosmic Novel", "BOOK-COSMIC", cosmicBooks);
         // galacticClothing has no products
@@ -351,6 +365,10 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void findEmptyCategoriesShouldReturnCategoriesWithoutProducts() {
         // Given
+        Category stellarElectronics = createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        createCategory("Cosmic Books", "Literature from various star systems");
+        createCategory("Galactic Clothing", "Fashion items for space travelers");
+
         createProduct("Stellar Laptop", "LAPTOP-COSMIC2", stellarElectronics);
         // cosmicBooks and galacticClothing have no products
 
@@ -369,6 +387,11 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @DisplayName("Should return all categories as empty when no products exist")
     @Transactional
     void findEmptyCategoriesWithNoProductsShouldReturnAllCategories() {
+        // Given
+        createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        createCategory("Cosmic Books", "Literature from various star systems");
+        createCategory("Galactic Clothing", "Fashion items for space travelers");
+
         // When
         List<CategoryDTO> results = categoryService.findEmptyCategories();
 
@@ -381,6 +404,10 @@ class CategoryServiceTest extends TestContainersBaseTest {
     @Transactional
     void findEmptyCategoriesWhenAllHaveProductsShouldReturnEmptyList() {
         // Given
+        Category stellarElectronics = createCategory("Stellar Electronics", "Electronic devices from across the galaxy");
+        Category cosmicBooks = createCategory("Cosmic Books", "Literature from various star systems");
+        Category galacticClothing = createCategory("Galactic Clothing", "Fashion items for space travelers");
+
         createProduct("Product 1", "SKU1", stellarElectronics);
         createProduct("Product 2", "SKU2", cosmicBooks);
         createProduct("Product 3", "SKU3", galacticClothing);

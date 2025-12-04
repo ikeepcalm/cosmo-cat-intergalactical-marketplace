@@ -1,10 +1,10 @@
 package net.cosmocat.marketplace.database.dal.service;
 
 import net.cosmocat.marketplace.TestContainersBaseTest;
+import net.cosmocat.marketplace.database.dal.repository.*;
 import net.cosmocat.marketplace.database.entity.*;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
 import net.cosmocat.marketplace.database.entity.source.OrderStatus;
-import net.cosmocat.marketplace.database.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

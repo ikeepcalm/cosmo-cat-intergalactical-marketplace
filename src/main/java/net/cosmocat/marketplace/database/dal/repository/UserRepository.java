@@ -1,4 +1,4 @@
-package net.cosmocat.marketplace.database.repository;
+package net.cosmocat.marketplace.database.dal.repository;
 
 import net.cosmocat.marketplace.database.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

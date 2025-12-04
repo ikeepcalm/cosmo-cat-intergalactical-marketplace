@@ -1,6 +1,8 @@
 package net.cosmocat.marketplace.database.repository;
 
 import net.cosmocat.marketplace.TestContainersBaseTest;
+import net.cosmocat.marketplace.database.dal.repository.CategoryRepository;
+import net.cosmocat.marketplace.database.dal.repository.ProductRepository;
 import net.cosmocat.marketplace.database.entity.Category;
 import net.cosmocat.marketplace.database.entity.Product;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;

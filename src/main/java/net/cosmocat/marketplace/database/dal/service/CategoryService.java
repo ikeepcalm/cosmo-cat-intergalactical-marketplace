@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.database.dto.entity.CategoryDTO;
 import net.cosmocat.marketplace.database.dto.request.CategoryCreateDTO;
 import net.cosmocat.marketplace.database.entity.Category;
-import net.cosmocat.marketplace.database.repository.CategoryRepository;
+import net.cosmocat.marketplace.database.dal.repository.CategoryRepository;
 import net.cosmocat.marketplace.exception.type.CategoryConflictException;
 import net.cosmocat.marketplace.exception.type.CategoryNotFoundException;
 import net.cosmocat.marketplace.mapper.CategoryMapper;

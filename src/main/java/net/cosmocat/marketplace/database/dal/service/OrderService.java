@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.cosmocat.marketplace.database.entity.Order;
 import net.cosmocat.marketplace.database.entity.OrderItem;
 import net.cosmocat.marketplace.database.entity.source.OrderStatus;
-import net.cosmocat.marketplace.database.repository.OrderItemRepository;
-import net.cosmocat.marketplace.database.repository.OrderRepository;
-import net.cosmocat.marketplace.database.repository.ProductRepository;
-import net.cosmocat.marketplace.database.repository.UserRepository;
+import net.cosmocat.marketplace.database.dal.repository.OrderItemRepository;
+import net.cosmocat.marketplace.database.dal.repository.OrderRepository;
+import net.cosmocat.marketplace.database.dal.repository.ProductRepository;
+import net.cosmocat.marketplace.database.dal.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

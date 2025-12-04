@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
         String mainMessage = String.format("Validation failed for object '%s'", objectName);
 
         if (!fieldErrors.isEmpty()) {
-            Map<String, Object> firstError = fieldErrors.get(0);
+            Map<String, Object> firstError = fieldErrors.getFirst();
             mainMessage =
                     String.format(
                             "Validation failed for object '%s': Field '%s' %s",

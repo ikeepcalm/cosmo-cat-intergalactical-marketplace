@@ -1,4 +1,4 @@
-package net.cosmocat.marketplace.database.repository;
+package net.cosmocat.marketplace.database.dal.repository;
 
 import net.cosmocat.marketplace.database.entity.Order;
 import net.cosmocat.marketplace.database.entity.source.OrderStatus;

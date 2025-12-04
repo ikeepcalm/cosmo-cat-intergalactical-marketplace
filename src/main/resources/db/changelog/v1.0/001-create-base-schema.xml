@@ -260,4 +260,9 @@
 
     </changeSet>
 
+    <changeSet id="008-add-sequences" author="student">
+        <createSequence sequenceName="order_seq" incrementBy="52" startValue="1"/>
+        <createSequence sequenceName="order_item_seq" incrementBy="52" startValue="1"/>
+    </changeSet>
+
 </databaseChangeLog>

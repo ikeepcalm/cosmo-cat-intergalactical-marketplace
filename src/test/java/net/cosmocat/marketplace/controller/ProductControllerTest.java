@@ -1,6 +1,7 @@
 package net.cosmocat.marketplace.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.cosmocat.marketplace.config.SecurityConfig;
 import net.cosmocat.marketplace.database.dal.service.ProductService;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
@@ -16,7 +17,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import net.cosmocat.marketplace.config.SecurityConfig;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;

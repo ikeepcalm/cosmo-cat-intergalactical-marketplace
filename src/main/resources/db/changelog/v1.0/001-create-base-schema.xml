@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <!-- Categories Table -->
+    <changeSet id="001-create-categories-table" author="student">
+        <createTable tableName="categories">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+        </createTable>
+
+        <createIndex indexName="idx_categories_name" tableName="categories">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Category Tags Table -->
+    <changeSet id="002-create-category-tags-table" author="student">
+        <createTable tableName="category_tags">
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tag" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="category_tags"
+            baseColumnNames="category_id"
+            constraintName="fk_category_tags_category"
+            referencedTableName="categories"
+            referencedColumnNames="id"/>
+
+        <createIndex indexName="idx_category_tags_category_id" tableName="category_tags">
+            <column name="category_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Products Table -->
+    <changeSet id="003-create-products-table" author="student">
+        <createTable tableName="products">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(1000)"/>
+            <column name="image_url" type="VARCHAR(500)"/>
+            <column name="price" type="DOUBLE PRECISION">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stock_quantity" type="INTEGER"/>
+            <column name="sku" type="VARCHAR(100)">
+                <constraints unique="true"/>
+            </column>
+            <column name="availability_status" type="VARCHAR(20)"/>
+            <column name="weight" type="DOUBLE PRECISION"/>
+            <column name="dimensions" type="VARCHAR(100)"/>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="products"
+            baseColumnNames="category_id"
+            constraintName="fk_products_category"
+            referencedTableName="categories"
+            referencedColumnNames="id"/>
+
+        <createIndex indexName="idx_products_category_id" tableName="products">
+            <column name="category_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_products_sku" tableName="products">
+            <column name="sku"/>
+        </createIndex>
+
+        <createIndex indexName="idx_products_availability_status" tableName="products">
+            <column name="availability_status"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- CosmoCats Table -->
+    <changeSet id="004-create-cosmo-cats-table" author="student">
+        <createTable tableName="cosmo_cats">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="breed" type="VARCHAR(100)"/>
+            <column name="color" type="VARCHAR(50)"/>
+            <column name="age" type="INTEGER"/>
+            <column name="image_url" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex indexName="idx_cosmo_cats_name" tableName="cosmo_cats">
+            <column name="name"/>
+        </createIndex>
+
+        <createIndex indexName="idx_cosmo_cats_breed" tableName="cosmo_cats">
+            <column name="breed"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Users Table -->
+    <changeSet id="005-create-users-table" author="student">
+        <createTable tableName="users">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(100)"/>
+            <column name="last_name" type="VARCHAR(100)"/>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex indexName="idx_users_username" tableName="users">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Orders Table -->
+    <changeSet id="006-create-orders-table" author="student">
+        <createTable tableName="orders">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_number" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shipped_date" type="TIMESTAMP"/>
+            <column name="delivered_date" type="TIMESTAMP"/>
+            <column name="shipping_address" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="orders"
+            baseColumnNames="user_id"
+            constraintName="fk_orders_user"
+            referencedTableName="users"
+            referencedColumnNames="id"/>
+
+        <createIndex indexName="idx_orders_user_id" tableName="orders">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_orders_status" tableName="orders">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex indexName="idx_orders_order_date" tableName="orders">
+            <column name="order_date"/>
+        </createIndex>
+
+        <createIndex indexName="idx_orders_order_number" tableName="orders">
+            <column name="order_number"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Order Items Table -->
+    <changeSet id="007-create-order-items-table" author="student">
+        <createTable tableName="order_items">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subtotal" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="order_items"
+            baseColumnNames="order_id"
+            constraintName="fk_order_items_order"
+            referencedTableName="orders"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="order_items"
+            baseColumnNames="product_id"
+            constraintName="fk_order_items_product"
+            referencedTableName="products"
+            referencedColumnNames="id"/>
+
+        <createIndex indexName="idx_order_items_order_id" tableName="order_items">
+            <column name="order_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_order_items_product_id" tableName="order_items">
+            <column name="product_id"/>
+        </createIndex>
+
+    </changeSet>
+
+    <changeSet id="008-add-sequences" author="student">
+        <createSequence sequenceName="order_seq" incrementBy="52" startValue="1"/>
+        <createSequence sequenceName="order_item_seq" incrementBy="52" startValue="1"/>
+    </changeSet>
+
+</databaseChangeLog>

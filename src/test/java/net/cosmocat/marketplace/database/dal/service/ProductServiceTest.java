@@ -1,42 +1,80 @@
 package net.cosmocat.marketplace.database.dal.service;
 
+import net.cosmocat.marketplace.TestContainersBaseTest;
 import net.cosmocat.marketplace.database.dto.entity.ProductDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductCreateDTO;
 import net.cosmocat.marketplace.database.dto.request.ProductUpdateDTO;
+import net.cosmocat.marketplace.database.entity.Category;
+import net.cosmocat.marketplace.database.entity.Product;
 import net.cosmocat.marketplace.database.entity.source.AvailabilityStatus;
+import net.cosmocat.marketplace.database.dal.repository.CategoryRepository;
+import net.cosmocat.marketplace.database.dal.repository.ProductRepository;
 import net.cosmocat.marketplace.exception.type.CategoryNotFoundException;
 import net.cosmocat.marketplace.exception.type.ProductConflictException;
 import net.cosmocat.marketplace.exception.type.ProductNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest(classes = ProductServiceTest.TestConfig.class)
 @DisplayName("ProductService Tests")
-class ProductServiceTest {
-
-    @TestConfiguration
-    @ComponentScan(basePackages = {
-            "net.cosmocat.marketplace.database.dal.service",
-            "net.cosmocat.marketplace.mapper"
-    })
-    static class TestConfig {
-    }
+class ProductServiceTest extends TestContainersBaseTest {
 
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    private Category createCategory(String name, String description) {
+        Category category = new Category();
+        category.setName(name);
+        category.setDescription(description);
+        category.setTags(Arrays.asList("popular", "featured"));
+        return categoryRepository.save(category);
+    }
+
+    private Product createProduct(String name, String description, Double price, String currency,
+                                  Category category, String sku, Integer stockQuantity) {
+        Product product = new Product();
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setCurrency(currency);
+        product.setCategory(category);
+        product.setSku(sku);
+        product.setStockQuantity(stockQuantity);
+        product.setAvailabilityStatus(AvailabilityStatus.AVAILABLE);
+        product.setWeight(1.0);
+        product.setDimensions("10x10x5 cm");
+        product.setImage("https://example.com/image.jpg");
+        return productRepository.save(product);
+    }
+
     @Test
     @DisplayName("Should retrieve all products successfully")
+    @Transactional
     void getAllProductsShouldReturnAllProducts() {
+        // Given
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        Category booksCategory = createCategory("Books", "Books and literature");
+        Category clothingCategory = createCategory("Clothing", "Apparel and fashion items");
+
+        createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+        createProduct("Smartphone Samsung", "Latest Android smartphone", 699.99, "USD", electronicsCategory, "PHONE001", 25);
+        createProduct("Java Programming Book", "Complete guide to Java programming", 49.99, "USD", booksCategory, "BOOK001", 50);
+        createProduct("T-Shirt Cotton", "Comfortable cotton t-shirt", 19.99, "USD", clothingCategory, "SHIRT001", 100);
+        createProduct("Wireless Headphones", "Bluetooth wireless headphones", 129.99, "USD", electronicsCategory, "HEAD001", 15);
+
         // When
         List<ProductDTO> products = productService.getAllProducts();
 
@@ -44,27 +82,31 @@ class ProductServiceTest {
         assertThat(products).isNotEmpty();
         assertThat(products).hasSizeGreaterThanOrEqualTo(5);
         assertThat(products)
-                .extracting(ProductDTO::getName)
+                .extracting(ProductDTO::name)
                 .contains("Laptop HP Pro", "Smartphone Samsung");
     }
 
     @Test
     @DisplayName("Should retrieve product by ID successfully")
+    @Transactional
     void getProductByIdWithValidIdShouldReturnProduct() {
         // Given
-        Long productId = 1L;
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        Product savedProduct = createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+        Long productId = savedProduct.getId();
 
         // When
         ProductDTO product = productService.getProductById(productId);
 
         // Then
         assertThat(product).isNotNull();
-        assertThat(product.getId()).isEqualTo(productId);
-        assertThat(product.getName()).isEqualTo("Laptop HP Pro");
+        assertThat(product.id()).isEqualTo(productId);
+        assertThat(product.name()).isEqualTo("Laptop HP Pro");
     }
 
     @Test
     @DisplayName("Should throw ProductNotFoundException when product ID doesn't exist")
+    @Transactional
     void getProductByIdWithInvalidIdShouldThrowException() {
         // Given
         Long nonExistentId = 999L;
@@ -77,8 +119,10 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should create new product successfully")
+    @Transactional
     void createProductWithValidDataShouldCreateProduct() {
         // Given
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
         ProductCreateDTO createRequest =
                 new ProductCreateDTO(
                         "Stellar Mouse",
@@ -91,23 +135,27 @@ class ProductServiceTest {
                         0.1,
                         "10x5x3 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When
         ProductDTO createdProduct = productService.createProduct(createRequest);
 
         // Then
         assertThat(createdProduct).isNotNull();
-        assertThat(createdProduct.getId()).isNotNull();
-        assertThat(createdProduct.getName()).isEqualTo("Stellar Mouse");
-        assertThat(createdProduct.getPrice()).isEqualTo(29.99);
-        assertThat(createdProduct.getSku()).isEqualTo("MOUSE001");
+        assertThat(createdProduct.id()).isNotNull();
+        assertThat(createdProduct.name()).isEqualTo("Stellar Mouse");
+        assertThat(createdProduct.price()).isEqualTo(29.99);
+        assertThat(createdProduct.sku()).isEqualTo("MOUSE001");
     }
 
     @Test
     @DisplayName("Should throw ProductConflictException when SKU already exists")
+    @Transactional
     void createProductWithDuplicateSkuShouldThrowException() {
         // Given
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+
         ProductCreateDTO createRequest =
                 new ProductCreateDTO(
                         "Cosmic Laptop",
@@ -120,7 +168,7 @@ class ProductServiceTest {
                         2.5,
                         "30x20x2 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When & Then
         assertThatThrownBy(() -> productService.createProduct(createRequest))
@@ -130,6 +178,7 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should throw CategoryNotFoundException when category doesn't exist")
+    @Transactional
     void createProductWithInvalidCategoryIdShouldThrowException() {
         // Given
         ProductCreateDTO createRequest =
@@ -154,9 +203,12 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should update existing product successfully")
+    @Transactional
     void updateProductWithValidDataShouldUpdateProduct() {
         // Given
-        Long productId = 1L;
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        Product savedProduct = createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+        Long productId = savedProduct.getId();
         ProductUpdateDTO updateRequest =
                 new ProductUpdateDTO(
                         "Laptop HP Pro",
@@ -169,23 +221,25 @@ class ProductServiceTest {
                         2.0,
                         "35x25x2 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When
         ProductDTO updatedProduct = productService.updateProduct(productId, updateRequest);
 
         // Then
         assertThat(updatedProduct).isNotNull();
-        assertThat(updatedProduct.getId()).isEqualTo(productId);
-        assertThat(updatedProduct.getName()).isEqualTo("Laptop HP Pro");
-        assertThat(updatedProduct.getPrice()).isEqualTo(1099.99);
-        assertThat(updatedProduct.getStockQuantity()).isEqualTo(8);
+        assertThat(updatedProduct.id()).isEqualTo(productId);
+        assertThat(updatedProduct.name()).isEqualTo("Laptop HP Pro");
+        assertThat(updatedProduct.price()).isEqualTo(1099.99);
+        assertThat(updatedProduct.stockQuantity()).isEqualTo(8);
     }
 
     @Test
     @DisplayName("Should throw ProductNotFoundException when updating non-existent product")
+    @Transactional
     void updateProductWithInvalidIdShouldThrowException() {
         // Given
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
         Long nonExistentId = 999L;
         ProductUpdateDTO updateRequest =
                 new ProductUpdateDTO(
@@ -199,7 +253,7 @@ class ProductServiceTest {
                         1.0,
                         "10x10x10 cm",
                         AvailabilityStatus.AVAILABLE,
-                        1L);
+                        electronicsCategory.getId());
 
         // When & Then
         assertThatThrownBy(() -> productService.updateProduct(nonExistentId, updateRequest))
@@ -209,9 +263,12 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should delete product successfully")
+    @Transactional
     void deleteProductWithValidIdShouldDeleteProduct() {
         // Given
-        Long productId = 5L;
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        Product savedProduct = createProduct("Wireless Headphones", "Bluetooth wireless headphones", 129.99, "USD", electronicsCategory, "HEAD001", 15);
+        Long productId = savedProduct.getId();
 
         // When
         productService.deleteProduct(productId);
@@ -223,18 +280,24 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should search products by name successfully")
+    @Transactional
     void searchProductsByNameWithValidNameShouldReturnMatchingProducts() {
+        // Given
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+
         // When
         List<ProductDTO> results = productService.searchProductsByName("Laptop");
 
         // Then
         assertThat(results).isNotEmpty();
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst().getName()).containsIgnoringCase("Laptop");
+        assertThat(results.getFirst().name()).containsIgnoringCase("Laptop");
     }
 
     @Test
     @DisplayName("Should return empty list when no products match search")
+    @Transactional
     void searchProductsByNameWithNonMatchingNameShouldReturnEmptyList() {
         // When
         List<ProductDTO> results = productService.searchProductsByName("NonExistentProduct");
@@ -245,22 +308,34 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("Should search products case-insensitively")
+    @Transactional
     void searchProductsByNameCaseInsensitiveShouldReturnMatchingProducts() {
+        // Given
+        Category electronicsCategory = createCategory("Electronics", "Electronic devices and gadgets");
+        createProduct("Laptop HP Pro", "High performance laptop", 999.99, "USD", electronicsCategory, "LAPTOP001", 10);
+
         // When
         List<ProductDTO> results = productService.searchProductsByName("laptop");
 
         // Then
         assertThat(results).isNotEmpty();
-        assertThat(results.getFirst().getName()).containsIgnoringCase("Laptop");
+        assertThat(results.getFirst().name()).containsIgnoringCase("Laptop");
     }
 
     @Test
     @DisplayName("Should return multiple products when search matches multiple items")
+    @Transactional
     void searchProductsByNameWithPartialNameShouldReturnMultipleProducts() {
+        // Given
+        Category clothingCategory = createCategory("Clothing", "Apparel and fashion items");
+        createProduct("T-Shirt Cotton", "Comfortable cotton t-shirt", 19.99, "USD", clothingCategory, "SHIRT001", 100);
+        createProduct("Polo Shirt", "Classic polo shirt", 29.99, "USD", clothingCategory, "SHIRT002", 50);
+
         // When
         List<ProductDTO> results = productService.searchProductsByName("Shirt");
 
         // Then
         assertThat(results).isNotEmpty();
+        assertThat(results).hasSizeGreaterThanOrEqualTo(1);
     }
 }

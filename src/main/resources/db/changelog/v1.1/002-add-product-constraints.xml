@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="008-add-product-name-category-unique-constraint" author="student">
+        <addUniqueConstraint
+                tableName="products"
+                columnNames="name, category_id"
+                constraintName="uk_products_name_category"/>
+    </changeSet>
+
+    <changeSet id="009-add-product-name-index" author="student">
+        <createIndex indexName="idx_products_name" tableName="products">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

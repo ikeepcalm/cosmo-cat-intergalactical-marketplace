@@ -15,25 +15,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FeatureToggleAspect {
 
-  private final FeatureToggleService featureToggleService;
+    private final FeatureToggleService featureToggleService;
 
-  @Before("@annotation(net.cosmocat.marketplace.aop.FeatureToggle)")
-  public void checkFeatureToggle(JoinPoint joinPoint) {
-    MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-    FeatureToggle featureToggle = signature.getMethod().getAnnotation(FeatureToggle.class);
+    @Before("@annotation(net.cosmocat.marketplace.aop.FeatureToggle)")
+    public void checkFeatureToggle(JoinPoint joinPoint) {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        FeatureToggle featureToggle = signature.getMethod().getAnnotation(FeatureToggle.class);
 
-    String featureName = featureToggle.value();
+        String featureName = featureToggle.value();
 
-    log.debug("Checking feature toggle for: {}", featureName);
+        log.debug("Checking feature toggle for: {}", featureName);
 
-    if (!featureToggleService.isFeatureEnabled(featureName)) {
-      log.warn(
-          "Feature '{}' is disabled, throwing FeatureNotAvailableException for method: {}",
-          featureName,
-          signature.getMethod().getName());
-      throw new FeatureNotAvailableException(featureName);
+        if (!featureToggleService.isFeatureEnabled(featureName)) {
+            log.warn(
+                    "Feature '{}' is disabled, throwing FeatureNotAvailableException for method: {}",
+                    featureName,
+                    signature.getMethod().getName());
+            throw new FeatureNotAvailableException(featureName);
+        }
+
+        log.debug("Feature '{}' is enabled, proceeding with execution", featureName);
     }
-
-    log.debug("Feature '{}' is enabled, proceeding with execution", featureName);
-  }
 }

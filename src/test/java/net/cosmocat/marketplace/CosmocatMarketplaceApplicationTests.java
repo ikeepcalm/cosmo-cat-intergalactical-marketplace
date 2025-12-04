@@ -1,12 +1,10 @@
 package net.cosmocat.marketplace;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.logging.Logger;
 
-@SpringBootTest
-class CosmocatMarketplaceApplicationTests {
+class CosmocatMarketplaceApplicationTests extends TestContainersBaseTest {
 
     @Test
     void contextLoads() {

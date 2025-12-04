@@ -1,5 +1,6 @@
 package net.cosmocat.marketplace.database.dal.service;
 
+import net.cosmocat.marketplace.config.PostgreSQLTestContainer;
 import net.cosmocat.marketplace.database.dto.entity.CosmoCatDTO;
 import net.cosmocat.marketplace.exception.type.FeatureNotAvailableException;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
 
@@ -20,73 +24,89 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("CosmoCatService Tests")
 class CosmoCatServiceTest {
 
-  @TestConfiguration
-  @ComponentScan(
-      basePackages = {
-        "net.cosmocat.marketplace.database.dal.service",
-        "net.cosmocat.marketplace.mapper",
-        "net.cosmocat.marketplace.aop"
-      })
-  @EnableAspectJAutoProxy
-  static class TestConfig {}
+    private static final PostgreSQLContainer<?> postgresContainer = PostgreSQLTestContainer.getInstance();
 
-  @Nested
-  @DisplayName("When feature.cosmoCats is enabled")
-  @SpringBootTest(classes = TestConfig.class)
-  @TestPropertySource(properties = {"feature.cosmoCats.enabled=true"})
-  class WhenFeatureEnabled {
-
-    @Autowired private CosmoCatService cosmoCatService;
-
-    @Test
-    @DisplayName("Should retrieve all CosmoCats successfully")
-    void getCosmoCatsShouldReturnAllCosmoCats() {
-      // When
-      List<CosmoCatDTO> cosmoCats = cosmoCatService.getCosmoCats();
-
-      // Then
-      assertThat(cosmoCats).isNotEmpty();
-      assertThat(cosmoCats).hasSize(4);
-      assertThat(cosmoCats)
-          .extracting(CosmoCatDTO::getName)
-          .containsExactlyInAnyOrder("Luna", "Cosmo", "Stella", "Orion");
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        registry.add("spring.liquibase.enabled", () -> "true");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
     }
 
-    @Test
-    @DisplayName("Should return CosmoCats with correct properties")
-    void getCosmoCatsShouldReturnCosmoCatsWithCorrectProperties() {
-      // When
-      List<CosmoCatDTO> cosmoCats = cosmoCatService.getCosmoCats();
-
-      // Then
-      CosmoCatDTO luna =
-          cosmoCats.stream().filter(cat -> cat.getName().equals("Luna")).findFirst().orElseThrow();
-
-      assertThat(luna.getId()).isEqualTo(1L);
-      assertThat(luna.getBreed()).isEqualTo("Nebula Shorthair");
-      assertThat(luna.getColor()).isEqualTo("Silver");
-      assertThat(luna.getAge()).isEqualTo(3);
-      assertThat(luna.getImage()).isEqualTo("https://example.com/cats/luna.jpg");
-      assertThat(luna.getCreatedAt()).isNotNull();
+    @TestConfiguration
+    @ComponentScan(
+            basePackages = {
+                    "net.cosmocat.marketplace.database.dal.service",
+                    "net.cosmocat.marketplace.mapper",
+                    "net.cosmocat.marketplace.aop",
+                    "net.cosmocat.marketplace.database.repository"
+            })
+    @EnableAspectJAutoProxy
+    static class TestConfig {
     }
-  }
 
-  @Nested
-  @DisplayName("When feature.cosmoCats is disabled")
-  @SpringBootTest(classes = TestConfig.class)
-  @TestPropertySource(properties = {"feature.cosmoCats.enabled=false"})
-  class WhenFeatureDisabled {
+    @Nested
+    @DisplayName("When feature.cosmoCats is enabled")
+    @SpringBootTest(classes = TestConfig.class)
+    @TestPropertySource(properties = {"feature.cosmoCats.enabled=true"})
+    class WhenFeatureEnabled {
 
-    @Autowired private CosmoCatService cosmoCatService;
+        @Autowired
+        private CosmoCatService cosmoCatService;
 
-    @Test
-    @DisplayName("Should throw FeatureNotAvailableException when calling getCosmoCats")
-    void getCosmoCatsShouldThrowFeatureNotAvailableException() {
-      // When & Then
-      assertThatThrownBy(() -> cosmoCatService.getCosmoCats())
-          .isInstanceOf(FeatureNotAvailableException.class)
-          .hasMessageContaining("cosmoCats")
-          .hasMessageContaining("not available");
+        @Test
+        @DisplayName("Should retrieve all CosmoCats successfully")
+        void getCosmoCatsShouldReturnAllCosmoCats() {
+            // When
+            List<CosmoCatDTO> cosmoCats = cosmoCatService.getCosmoCats();
+
+            // Then
+            assertThat(cosmoCats).isNotEmpty();
+            assertThat(cosmoCats).hasSize(4);
+            assertThat(cosmoCats)
+                    .extracting(CosmoCatDTO::name)
+                    .containsExactlyInAnyOrder("Luna", "Cosmo", "Stella", "Orion");
+        }
+
+        @Test
+        @DisplayName("Should return CosmoCats with correct properties")
+        void getCosmoCatsShouldReturnCosmoCatsWithCorrectProperties() {
+            // When
+            List<CosmoCatDTO> cosmoCats = cosmoCatService.getCosmoCats();
+
+            // Then
+            CosmoCatDTO luna =
+                    cosmoCats.stream().filter(cat -> cat.name().equals("Luna")).findFirst().orElseThrow();
+
+            assertThat(luna.id()).isEqualTo(1L);
+            assertThat(luna.breed()).isEqualTo("Nebula Shorthair");
+            assertThat(luna.color()).isEqualTo("Silver");
+            assertThat(luna.age()).isEqualTo(3);
+            assertThat(luna.image()).isEqualTo("https://example.com/cats/luna.jpg");
+            assertThat(luna.createdAt()).isNotNull();
+        }
     }
-  }
+
+    @Nested
+    @DisplayName("When feature.cosmoCats is disabled")
+    @SpringBootTest(classes = TestConfig.class)
+    @TestPropertySource(properties = {"feature.cosmoCats.enabled=false"})
+    class WhenFeatureDisabled {
+
+        @Autowired
+        private CosmoCatService cosmoCatService;
+
+        @Test
+        @DisplayName("Should throw FeatureNotAvailableException when calling getCosmoCats")
+        void getCosmoCatsShouldThrowFeatureNotAvailableException() {
+            // When & Then
+            assertThatThrownBy(() -> cosmoCatService.getCosmoCats())
+                    .isInstanceOf(FeatureNotAvailableException.class)
+                    .hasMessageContaining("cosmoCats")
+                    .hasMessageContaining("not available");
+        }
+    }
 }

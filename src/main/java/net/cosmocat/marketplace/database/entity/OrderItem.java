@@ -19,11 +19,11 @@ public class OrderItem {
     @SequenceGenerator(name = "order_item_seq", sequenceName = "order_item_seq", allocationSize = 52)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 

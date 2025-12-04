@@ -26,6 +26,6 @@ public class Category {
     @CollectionTable(name = "category_tags", joinColumns = @JoinColumn(name = "category_id"))
     private List<String> tags;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Product> products;
 }

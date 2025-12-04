@@ -36,8 +36,7 @@
             baseColumnNames="category_id"
             constraintName="fk_category_tags_category"
             referencedTableName="categories"
-            referencedColumnNames="id"
-            onDelete="CASCADE"/>
+            referencedColumnNames="id"/>
 
         <createIndex indexName="idx_category_tags_category_id" tableName="category_tags">
             <column name="category_id"/>
@@ -240,8 +239,7 @@
             baseColumnNames="order_id"
             constraintName="fk_order_items_order"
             referencedTableName="orders"
-            referencedColumnNames="id"
-            onDelete="CASCADE"/>
+            referencedColumnNames="id"/>
 
         <addForeignKeyConstraint
             baseTableName="order_items"

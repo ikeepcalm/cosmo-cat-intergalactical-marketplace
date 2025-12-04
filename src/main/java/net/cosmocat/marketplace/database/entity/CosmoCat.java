@@ -3,6 +3,7 @@ package net.cosmocat.marketplace.database.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -30,11 +31,7 @@ public class CosmoCat {
     @Column(name = "image_url")
     private String image;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }
